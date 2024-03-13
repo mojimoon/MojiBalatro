@@ -72,15 +72,15 @@ Each starting card has an **1 in 6** chance to be negative, but also **-1** disc
 > **负片牌组**  
 > 开局时牌组中的每张牌有**1/6**的概率是负片，但每回合 **-1**次弃牌。
 
-### Before you start
+#### Before you start
 
 This mod is currently in beta. Bugs and balance issues are expected. Please report them in the [Issues](https://github.com/mojimoon/MojiBalatro/issues) or make a [Pull Request](https://github.com/mojimoon/MojiBalatro/pulls).
 
-### Known issues
+#### Known issues
 
 - Negative shader will not correctly apply before you first draw a Negative card.
 
-### Future development
+#### Future development
 
 - Negative playing cards badge：+1 hand size when in hand
 - Adding Negative cards to Standard Booster Pack
