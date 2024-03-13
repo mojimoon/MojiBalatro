@@ -56,3 +56,33 @@ Additionally, the consumable slot is set to 0.
 | 补充包 | 秘术、天体、幻灵 |
 
 此外，消耗牌槽位为 0。
+
+## Mechanics
+
+### [Negative Poker](NegativePoker/NegativePoker.lua)
+
+Allow playing cards to have **Negative** edition, giving **+1 hand size when held in hand**.
+
+Also adds a new deck, **Negative Deck**. 
+
+Each starting card has an **1 in 6** chance to be negative, but also **-1** discard every round.
+
+> **负片扑克**  
+> 让游戏牌也能获得**负片**版本，效果为：**在手中时，手牌上限+1**。  
+> **负片牌组**  
+> 开局时牌组中的每张牌有**1/6**的概率是负片，但每回合 **-1**次弃牌。
+
+### Before you start
+
+This mod is currently in beta. Bugs and balance issues are expected. Please report them in the [Issues](https://github.com/mojimoon/MojiBalatro/issues) or make a [Pull Request](https://github.com/mojimoon/MojiBalatro/pulls).
+
+### Known issues
+
+- Negative shader will not correctly apply before you first draw a Negative card.
+
+### Future development
+
+- Negative playing cards badge：+1 hand size when in hand
+- Adding Negative cards to Standard Booster Pack
+- Adding Spectral cards to create Negative cards
+- Adding negative Shader to the Negative Deck (Instead of adding `Enhancers.jpg`)
