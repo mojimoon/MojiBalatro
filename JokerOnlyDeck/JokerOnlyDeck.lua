@@ -14,11 +14,9 @@ function Back.apply_to_run(arg_56_0)
     if arg_56_0.effect.config.moji_ban_sets then
         G.E_MANAGER:add_event(Event({
             func = function()
-                for k, v in ipairs(arg_56_0.effect.config.moji_ban_sets) do
-                    for cardid, card in ipairs(G.P_CENTERS) do
-                        if card.set == v.set then
-                            G.GAME.banned_keys[cardid] = true
-                        end
+                for _, _set in ipairs(arg_56_0.effect.config.moji_ban_sets) do
+                    for k, v in ipairs(G.P_CENTER_POOLS[_set.set]) do
+                        G.GAME.banned_keys[v.key] = true
                     end
                 end
                 return true
@@ -40,10 +38,10 @@ function Back.apply_to_run(arg_56_0)
     if arg_56_0.effect.config.moji_ban_boosters then
         G.E_MANAGER:add_event(Event({
             func = function()
-                for k, v in ipairs(arg_56_0.effect.config.moji_ban_boosters) do
-                    for cardid, card in ipairs(G.P_CENTERS) do
-                        if card.set == "Booster" and card.kind == v.kind then
-                            G.GAME.banned_keys[cardid] = true
+                for k, v in ipairs(G.P_CENTER_POOLS['Booster']) do
+                    for _, _type in ipairs(arg_56_0.effect.config.moji_ban_boosters) do
+                        if _type.kind == v.kind then
+                            G.GAME.banned_keys[v.key] = true
                         end
                     end
                 end
@@ -51,6 +49,27 @@ function Back.apply_to_run(arg_56_0)
             end
         }))
     end
+
+    if arg_56_0.effect.config.moji_joker_only then
+        G.GAME.starting_params.moji_joker_only = arg_56_0.effect.config.moji_joker_only
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                G.GAME.tarot_rate = 0
+                G.GAME.planet_rate = 0
+                return true
+            end
+        }))
+    end
+end
+
+local Gameupdate_shopRef = Game.update_shop
+function Game:update_shop(dt)
+    if G.GAME.starting_params.moji_joker_only then
+        G.load_shop_vouchers = nil
+        G.GAME.current_round.voucher = nil
+    end
+
+    Gameupdate_shopRef(self, dt)
 end
 
 local loc_en = {
@@ -112,7 +131,9 @@ local jokeronly = SMODS.Deck:new(
             {kind = "Celestial"},
             {kind = "Arcana"},
             {kind = "Spectral"}
-        }
+        },
+        moji_joker_only = true,
+        consumable_slot = -2
     },
     {x = 5, y = 2},
     loc_txt

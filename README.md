@@ -5,7 +5,7 @@ A collection of my mods for the awesome poker roguelike [Balatro](https://www.pl
 ## Before you start
 
 - **[Steamodded](https://github.com/Steamopollys/Steamodded) is required**. Please follow the instructions there to install Steamodded and these mods.
-- English and Simplified Chinese are supported. Switching between the two languages requires a restart to take effect.
+- English and Simplified Chinese are supported. Switching between the two languages requires a game restart.
 
 ## Installation
 
