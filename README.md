@@ -72,17 +72,24 @@ Each starting card has an **1 in 6** chance to be negative, but also **-1** disc
 > **负片牌组**  
 > 开局时牌组中的每张牌有**1/6**的概率是负片，但每回合 **-1**次弃牌。
 
-#### Before you start
+#### Important
 
-This mod is currently in beta. Bugs and balance issues are expected. Please report them in the [Issues](https://github.com/mojimoon/MojiBalatro/issues) or make a [Pull Request](https://github.com/mojimoon/MojiBalatro/pulls).
+This mod is currently in beta. Bugs and balance issues are expected. 
+
+Please report them in the [Issues](https://github.com/mojimoon/MojiBalatro/issues) or make a [Pull Request](https://github.com/mojimoon/MojiBalatro/pulls). 
+
+Thanks for playing!
 
 #### Known issues
 
-- Negative shader will not correctly apply before you first draw a Negative card.
+- Negative shader will not correctly apply until you draw a Negative card to your hand, after each game start.
 
-#### Future development
+#### Future plans
 
 - Negative playing cards badge：+1 hand size when in hand
 - Adding Negative cards to Standard Booster Pack
 - Adding Spectral cards to create Negative cards
 - Adding negative Shader to the Negative Deck (Instead of adding `Enhancers.jpg`)
+- Pull request to Steamodded to:
+    - Add API for adding custom editions, enhancements and seals
+    - Add API for in-round hand size change

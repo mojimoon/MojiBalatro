@@ -117,6 +117,7 @@ function CardArea:draw_card_from(area, stay_flipped, discarded_only)
                     G.GAME.round_resets.temp_handsize = G.GAME.round_resets.temp_handsize + 1
                     G.E_MANAGER:add_event(Event({trigger = 'immediate', delay = 0.05, func = function()
                         self:draw_card_from(area, stay_flipped, discarded_only)
+                        self:sort()
                         return true
                     end }))
                 end
