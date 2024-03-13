@@ -76,8 +76,9 @@ local loc_en = {
     ["name"]="Joker Only Deck",
     ["text"]={
         [1]="All {C:tarot}Consumables{} and {C:attention}Vouchers{}",
-        [2]="are banned, together with related",
-        [3]="Jokers, Tags and Booster Packs"
+        [2]="are banned, together with",
+        [3]="related Jokers, Tags",
+        [4]="and Booster Packs"
     }
 }
 
@@ -85,8 +86,8 @@ local loc_zh = {
     ["name"]="仅小丑牌组",
     ["text"]={
         [1]="所有{C:tarot}消耗牌{}和{C:attention}优惠券{}",
-        [2]="以及相关的小丑牌、标签和补充包",
-        [3]="都被禁用"
+        [2]="及相关的小丑牌、标签",
+        [3]="和补充包都被禁用"
     }
 }
 

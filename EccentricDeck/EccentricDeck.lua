@@ -86,8 +86,8 @@ function Back.apply_to_run(arg_56_0)
                     local random_g = g_list[weighted_random_select(g_list)]
                     random_m.weight = random_m.weight + 1
                     random_e.weight = random_e.weight + 1
-                    random_r.weight = random_r.weight + 1
-                    random_s.weight = random_s.weight + 1
+                    random_r.weight = random_r.weight + 2
+                    random_s.weight = random_s.weight + 2
                     random_g.weight = random_g.weight + 1
 
                     G.playing_cards[iter_57_0]:set_base(G.P_CARDS[random_s.value .. "_" .. random_r.value])
@@ -111,21 +111,20 @@ local loc_en = {
     ["name"]="Eccentric Deck",
     ["text"]={
         [1]="All {C:attention}Ranks{} and {C:attention}Suits{} in deck",
-        [2]="are randomized but heavily biased",
-        [3]="towards a specific type",
-        [4]="{C:attention}Enhancements{}, {C:attention}Editions{} and {C:attention}Seals{}",
-        [5]="are also randomly added"
+        [2]="with {C:tarot}Enhancements{}, {C:planet}Editions{},",
+        [3]="and {C:spectral}Seals{} of some cards",
+        [4]="are random, but biased",
+        [5]="towards the same kind"
     }
 }
 
 local loc_zh = {
     ["name"]="怪奇牌组",
     ["text"]={
-        [1]="牌组中所有牌的",
-        [2]="{C:attention}点数{}和{C:attention}花色{}",
-        [3]="都是随机的但偏向性更强",
-        [4]="部分牌也会随机添加",
-        [5]="{C:attention}增强{}、{C:attention}版本{}和{C:attention}蜡封{}"
+        [1]="牌组中所有牌的{C:attention}点数{}、{C:attention}花色",
+        [2]="和部分牌的{C:tarot}增强{}、{C:planet}版本{}",
+        [3]="和{C:spectral}蜡封{}都是随机的",
+        [4]="但偏向于同一种"
     }
 }
 

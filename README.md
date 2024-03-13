@@ -1,4 +1,4 @@
-# Balatro-Mojimods
+# MojiBalatro
 
 A collection of my mods for the awesome poker roguelike [Balatro](https://www.playbalatro.com/).
 
@@ -6,6 +6,7 @@ A collection of my mods for the awesome poker roguelike [Balatro](https://www.pl
 
 - **[Steamodded](https://github.com/Steamopollys/Steamodded) is required**. Please follow the instructions there to install Steamodded and these mods.
 - English and Simplified Chinese are supported. Switching between the two languages requires a game restart.
+- In-game descriptions are modified for brevity so that they fit the UI. Here you can find detailed descriptions in both languages.
 
 ## Installation
 
@@ -18,13 +19,12 @@ A collection of my mods for the awesome poker roguelike [Balatro](https://www.pl
 
 ### [Eccentric Deck](EccentricDeck/EccentricDeck.lua)
 
-All **Ranks** and **Suits**  in deck are randomized but heavily biased towards a specific type.
+All **Ranks** and **Suits** in the deck are random but biased towards the same kind.
 
-**Enhancements**, **Editions** and **Seals** are also randomly added to some cards.
+**Enhancements**, **Editions** and **Seals** are also biasedly added to some cards.
 
 > **怪奇牌组**  
-> 牌组中所有牌的**点数**和**花色**都是随机的但偏向性更强  
-> 部分牌也会随机添加**增强**、**版本**和**蜡封**
+> 牌组中的所有牌的**点数**和**花色**都是随机的，部分牌也会随机获得**增强**、**版本**和**蜡封**，但都偏向于同一种。
 
 ### [Joker Only Deck](JokerOnlyDeck/JokerOnlyDeck.lua)
 
@@ -43,7 +43,7 @@ All **Consumables** and **Vouchers** are banned, together with related Jokers, T
 Additionally, the consumable slot is set to 0.
 
 > **仅小丑牌组**  
-> 所有**消耗牌**和**优惠券**，以及相关的小丑牌、标签和补充包都被禁用
+> 所有**消耗牌**和**优惠券**，及相关的小丑牌、标签和补充包都被禁用
 
 | 类型 | 禁用列表 |
 | ---- | -------- |
