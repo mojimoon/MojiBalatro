@@ -1,6 +1,6 @@
 # Balatro-Mojimods
 
-A collection of my mods for the awesome pocker roguelike [Balatro](https://www.playbalatro.com/).
+A collection of my mods for the awesome poker roguelike [Balatro](https://www.playbalatro.com/).
 
 ## Before you start
 
@@ -40,7 +40,7 @@ All **Consumables** and **Vouchers** are banned, together with related Jokers, T
 | Tags | Voucher, Charm, Meteor, Ethereal, Orbital |
 | Booster Packs | Arcana, Celestial, Spectral |
 
-Consumable slots is set to 0.
+Additionally, the consumable slot is set to 0.
 
 > **仅小丑牌组**  
 > 所有**消耗牌**和**优惠券**，以及相关的小丑牌、标签和补充包都被禁用
@@ -54,3 +54,5 @@ Consumable slots is set to 0.
 | 小丑牌 | 叠加态、流浪者、幻觉、占卜师、卡牌术士 <br>八号球、星座、卫星、天文学家 <br>第六感、通灵 |
 | 标签 | 优惠券、吊饰、流星、空灵、轨道 |
 | 补充包 | 秘术、天体、幻灵 |
+
+此外，消耗牌槽位为 0。
