@@ -1,5 +1,5 @@
 --- STEAMODDED HEADER
---- MOD_NAME: Negative Poker (Beta)
+--- MOD_NAME: Negative Poker (Experimental)
 --- MOD_ID: NegativePoker
 --- MOD_AUTHOR: [Mojimoon]
 --- MOD_DESCRIPTION: Allow playing cards to have Negative edition, giving +1 hand size when held in hand. Adds a new deck, Negative Deck, which has a 1/6 chance to draw a negative card, but -1 discard
@@ -73,22 +73,34 @@ function Card:set_edition(edition, immediate, silent)
     end
 end
 
+function add_temp_handsize(mod)
+    if not G.GAME.round_resets.temp_handsize then
+        G.GAME.round_resets.temp_handsize = 0
+    end
+    G.E_MANAGER:add_event(Event({
+        func = function()
+            G.hand.config.real_card_limit = (G.hand.config.real_card_limit or G.hand.config.card_limit) + mod
+            G.hand.config.card_limit = math.max(0, G.hand.config.real_card_limit)
+            return true
+        end
+    }))
+    G.GAME.round_resets.temp_handsize = G.GAME.round_resets.temp_handsize + mod
+end
+
+function draw_hand()
+    G.E_MANAGER:add_event(Event({trigger = 'immediate', delay = 0.05, func = function()
+        G.hand:draw_card_from(area, stay_flipped, discarded_only)
+        G.hand:sort()
+        return true
+    end }))
+end
+
 local draw_card_ref = draw_card
 function draw_card(from, to, percent, dir, sort, card, delay, mute, stay_flipped, vol, discarded_only)
     -- Play and discard
     if card and from == G.hand and (to == G.play or to == G.discard) then
         if card.edition and card.edition.negative then
-            if not G.GAME.round_resets.temp_handsize then
-                G.GAME.round_resets.temp_handsize = 0
-            end
-            G.E_MANAGER:add_event(Event({
-                func = function()
-                    G.hand.config.real_card_limit = (G.hand.config.real_card_limit or G.hand.config.card_limit) - 1
-                    G.hand.config.card_limit = math.max(0, G.hand.config.real_card_limit)
-                    return true
-                end
-            }))
-            G.GAME.round_resets.temp_handsize = G.GAME.round_resets.temp_handsize - 1
+            add_temp_handsize(-1)
         end
     end
 
@@ -104,22 +116,8 @@ function CardArea:draw_card_from(area, stay_flipped, discarded_only)
                     card.T.r = 0
                 end
                 if self == G.hand and card.edition and card.edition.negative then
-                    if not G.GAME.round_resets.temp_handsize then
-                        G.GAME.round_resets.temp_handsize = 0
-                    end
-                    G.E_MANAGER:add_event(Event({
-                        func = function()
-                            G.hand.config.real_card_limit = (G.hand.config.real_card_limit or G.hand.config.card_limit) + 1
-                            G.hand.config.card_limit = math.max(0, G.hand.config.real_card_limit)
-                            return true
-                        end
-                    }))
-                    G.GAME.round_resets.temp_handsize = G.GAME.round_resets.temp_handsize + 1
-                    G.E_MANAGER:add_event(Event({trigger = 'immediate', delay = 0.05, func = function()
-                        self:draw_card_from(area, stay_flipped, discarded_only)
-                        self:sort()
-                        return true
-                    end }))
+                    add_temp_handsize(1)
+                    draw_hand()
                 end
                 local stay_flipped = G.GAME and G.GAME.blind and G.GAME.blind:stay_flipped(self, card)
                 if (self == G.hand) and G.GAME.modifiers.flipped_cards then
