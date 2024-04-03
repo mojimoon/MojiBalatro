@@ -28,6 +28,16 @@ local loc_en = {
             "{C:inactive}(Currently {X:mult,C:white} X#3# {C:inactive} Mult)"
         }
     },
+    j_new_order = {
+        name = "The New Order",
+        text = {
+            "{C:mult}+#2#{} Mult when {C:attention}#1#{}",
+            "is played and scored",
+            "Rank increases by {C:attention}1{} after each trigger",
+            "{C:inactive}(A, 2, 3, ..., K, A)",
+            "{C:inactive}(Currently {C:mult} +#3# {C:inactive} Mult)"
+        }
+    },
 }
 
 local loc_zh = {
@@ -47,6 +57,16 @@ local loc_zh = {
             "若未在一次出牌内击败盲注，",
             "失去{X:mult,C:white}X#2#{}倍率",
             "{C:inactive}（当前为{X:mult,C:white} X#3# {C:inactive}倍率）"
+        }
+    },
+    j_new_order = {
+        name = "新秩序",
+        text = {
+            "打出{C:attention}#1#{}并计分时，",
+            "获得{C:mult}+#2#{}倍率",
+            "每次触发后目标点数{C:attention}+1{}",
+            "{C:inactive}（A、2、3、……、K、A）",
+            "{C:inactive}（当前为{C:mult} +#3# {C:inactive}倍率）"
         }
     },
 }
@@ -78,8 +98,36 @@ local jokers = {
         rarity = 2,
         cost = 8,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_new_order = {
+        ability_name = "The New Order",
+        slug = "new_order",
+        ability = {extra = {mult_inc = 1, rank = 14}},
+        rarity = 1,
+        cost = 4,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     }
 }
+
+local rank_to_str = {
+    [2] = "2",
+    [3] = "3",
+    [4] = "4",
+    [5] = "5",
+    [6] = "6",
+    [7] = "7",
+    [8] = "8",
+    [9] = "9",
+    [10] = "10",
+    [11] = "J",
+    [12] = "Q",
+    [13] = "K",
+    [14] = "A"
+}
+
+function rank_inc(rank)
+    return rank == 14 and 2 or rank + 1
+end
 
 function SMODS.INIT.MojiJoker()
     for k, v in pairs(misc_loc_txt) do
@@ -109,6 +157,7 @@ function SMODS.INIT.MojiJoker()
         sprite:register()
     end
 
+    -- Color Out of Space
     SMODS.Jokers.j_color_out_of_space.calculate = function(self, context)
         if context.before and not context.blueprint then
             if next(context.poker_hands[self.ability.extra.type]) then
@@ -132,6 +181,7 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
+    -- Garbage Time
     SMODS.Jokers.j_garbage_time.calculate = function(self, context)
         if SMODS.end_calculate_context(context) then
             if G.GAME.current_round.hands_played == 0 then
@@ -142,8 +192,6 @@ function SMODS.INIT.MojiJoker()
                 }
             end
         end
-        -- if context.after and not context.blueprint then
-        --     if G.GAME.current_round.hands_played == 0 and G.GAME.chips < G.GAME.blind.chips then
         if context.before and not context.blueprint then
             if G.GAME.current_round.hands_played == 1 then
                 local newMult = self.ability.extra.Xmult - self.ability.extra.Xmult_dec
@@ -178,6 +226,31 @@ function SMODS.INIT.MojiJoker()
             end
         end
     end
+
+    -- The New Order
+    SMODS.Jokers.j_new_order.calculate = function(self, context)
+        if context.individual and not context.blueprint then
+            if context.cardarea == G.play then
+                if context.other_card:get_id() == self.ability.extra.rank then
+                    self.ability.mult = self.ability.mult + self.ability.extra.mult_inc
+                    self.ability.extra.rank = rank_inc(self.ability.extra.rank)
+                    return {
+                        extra = {focus = self, message = localize('k_upgrade_ex'), colour = G.C.MULT},
+                        card = self
+                    }
+                end
+            end
+        end
+        if SMODS.end_calculate_context(context) then
+            if self.ability.mult > 0 then
+                return {
+                    message = localize{type='variable',key='a_mult',vars={self.ability.mult}},
+                    colour = G.C.RED,
+                    mult_mod = self.ability.mult
+                }
+            end
+        end
+    end
 end
 
 -- Copied and modifed from LushMod
@@ -205,6 +278,12 @@ function Card.generate_UIBox_ability_table(self)
                 self.ability.extra.Xmult_base,
                 self.ability.extra.Xmult_dec,
                 self.ability.extra.Xmult
+            }
+        elseif self.ability.name == 'The New Order' then
+            loc_vars = {
+                rank_to_str[self.ability.extra.rank],
+                self.ability.extra.mult_inc,
+                self.ability.mult
             }
         else
             customJoker = false
