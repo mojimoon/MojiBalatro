@@ -106,7 +106,7 @@ local loc_zh = {
         text = {
             "本局游戏每使用过一种{C:planet}星球牌",
             "所有商品价格降低{C:money}$#1#{}",
-            "{C:inactive}（不会低于{C:money}$1{C:inactive}）",
+            "{C:inactive}（价格不会低于{C:money}$1{C:inactive}）",
             "{C:inactive}（当前为{C:money}-$#2#{C:inactive}）"
         }
     }
