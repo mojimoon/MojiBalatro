@@ -125,7 +125,7 @@ local jokers = {
     j_new_order = {
         ability_name = "The New Order",
         slug = "new_order",
-        ability = {extra = {Xmult_add = 0.1, Xmult_sub = 0.1, rank = 14, hand_trigger = 0}},
+        ability = {extra = {Xmult_add = 0.1, Xmult_sub = 0.1, rank = 14}},
         rarity = 2,
         cost = 8,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
@@ -250,22 +250,23 @@ function SMODS.INIT.MojiJoker()
 
     -- The New Order
     SMODS.Jokers.j_new_order.calculate = function(self, context)
-        if context.individual and not context.blueprint then
-            if context.cardarea == G.play then
-                if context.other_card:get_id() == self.ability.extra.rank then
-                    self.ability.x_mult = self.ability.x_mult + self.ability.extra.Xmult_add
+        if context.before and not context.blueprint then
+            local hand_trigger = 0
+            for i = 1, #context.scoring_hand do
+                if context.scoring_hand[i]:get_id() == self.ability.extra.rank then
+                    hand_trigger = hand_trigger + 1
                     self.ability.extra.rank = rank_dec(self.ability.extra.rank)
-                    self.ability.extra.hand_trigger = self.ability.extra.hand_trigger + 1
-                    return {
-                        message = localize{type='variable',key='a_xmult',vars={self.ability.extra.Xmult_add}},
-                        colour = G.C.MULT,
-                        card = self
-                    }
                 end
             end
-        end
-        if context.after and not context.blueprint then
-            if self.ability.extra.hand_trigger == 0 then
+            if hand_trigger > 0 then
+                local addMult = self.ability.extra.Xmult_add * hand_trigger
+                self.ability.x_mult = self.ability.x_mult + addMult
+                return {
+                    message = localize{type='variable',key='a_xmult',vars={addMult}},
+                    colour = G.C.MULT,
+                    card = self
+                }
+            else
                 self.ability.x_mult = self.ability.x_mult - self.ability.extra.Xmult_sub
                 if self.ability.x_mult >= 1 then
                     return {
@@ -277,7 +278,6 @@ function SMODS.INIT.MojiJoker()
                     self.ability.x_mult = 1
                 end
             end
-            self.ability.extra.hand_trigger = 0
         end
     end
 
