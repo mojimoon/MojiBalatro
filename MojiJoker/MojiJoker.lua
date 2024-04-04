@@ -58,6 +58,25 @@ local loc_en = {
             "{C:inactive}(Price cannot go below {C:money}$1{C:inactive})",
             "{C:inactive}(Currently {C:money}-$#2#{C:inactive})"
         }
+    },
+    j_transcendence = {
+        name = "Transcendence",
+        text = {
+            "When {C:attention}Blind{} is selected,",
+            "create a {C:tarot}The Hanged Man{}", 
+            "{C:inactive}(Must have room)"
+        }
+    },
+    j_sisyphus = {
+        name = "Sisyphus",
+        text = {
+            "When {C:attention}Blind{} is selected,",
+            "enhances all cards of a randomly chosen",
+            "{C:attention}rank{} in your deck to {C:attention}Stone Cards{}",
+            "Gains {X:mult,C:white}X#1#{} Mult per Stone Card",
+            "created by Sisyphus",
+            "{C:inactive}(Currently {X:mult,C:white} X#2# {C:inactive} Mult)"
+        }
     }
 }
 
@@ -109,6 +128,25 @@ local loc_zh = {
             "{C:inactive}（价格不会低于{C:money}$1{C:inactive}）",
             "{C:inactive}（当前为{C:money}-$#2#{C:inactive}）"
         }
+    },
+    j_transcendence = {
+        name = "超凡升天",
+        text = {
+            "选择{C:attention}盲注{}后",
+            "生成一张{C:tarot}倒吊人{}",
+            "{C:inactive}（必须有空位）"
+        }
+    },
+    j_sisyphus = {
+        name = "西西弗斯",
+        text = {
+            "选择{C:attention}盲注{}后",
+            "随机选择一种{C:attention}点数{}",
+            "将牌组中该点数的牌增强为{C:attention}石头牌{}",
+            "西西弗斯每创建1张石头牌，",
+            "获得{X:mult,C:white}X#1#{}倍率",
+            "{C:inactive}（当前为{X:mult,C:white} X#2# {C:inactive}倍率）"
+        }
     }
 }
 
@@ -145,7 +183,7 @@ local jokers = {
         slug = "new_order",
         ability = {extra = {Xmult_add = 0.2, Xmult_sub = 0.1, rank = 14}},
         rarity = 3,
-        cost = 9,
+        cost = 8,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
     j_quantization = {
@@ -162,6 +200,22 @@ local jokers = {
         ability = {extra = {price_sub = 0.75, planets_used = 0}},
         rarity = 2,
         cost = 6,
+        unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
+    },
+    j_transcendence = {
+        ability_name = "Transcendence",
+        slug = "transcendence",
+        ability = {},
+        rarity = 1,
+        cost = 5,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_sisyphus = {
+        ability_name = "Sisyphus",
+        slug = "sisyphus",
+        ability = {extra = {Xmult_add = 0.15}},
+        rarity = 3,
+        cost = 9,
         unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
     }
 }
@@ -383,6 +437,60 @@ function SMODS.INIT.MojiJoker()
                 return true end }))
         end
     end
+
+    -- Transcendence
+    SMODS.Jokers.j_transcendence.calculate = function(self, context)
+        if context.setting_blind then
+            if not (context.blueprint_card or self).getting_sliced and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                G.E_MANAGER:add_event(Event({
+                    func = (function()
+                        G.E_MANAGER:add_event(Event({
+                            func = function() 
+                                local card = create_card('Tarot',G.consumeables, nil, nil, nil, nil, 'c_hanged_man', nil)
+                                card:add_to_deck()
+                                G.consumeables:emplace(card)
+                                G.GAME.consumeable_buffer = 0
+                                return true
+                            end}))   
+                            card_eval_status_text(context.blueprint_card or self, 'extra', nil, nil, nil, {message = localize('k_plus_tarot'), colour = G.C.PURPLE})                       
+                        return true
+                    end)}))
+            end
+        end
+    end
+    
+    -- Sisyphus
+    SMODS.Jokers.j_sisyphus.calculate = function(self, context)
+        if context.setting_blind and not self.getting_sliced and not context.blueprint then
+            local non_stone_cards = {}
+            for i = 1, #G.deck.cards do
+                if G.deck.cards[i].ability.effect ~= 'Stone Card' then
+                    non_stone_cards[#non_stone_cards + 1] = G.deck.cards[i]
+                end
+            end
+            if #non_stone_cards == 0 then return end
+            local target_rank = pseudorandom_element(non_stone_cards, pseudoseed('sisyphus')):get_id()
+            local stones_created = 0
+            for i = 1, #G.deck.cards do
+                if G.deck.cards[i]:get_id() == target_rank then
+                    if G.deck.cards[i].ability.effect ~= 'Stone Card' then
+                        G.deck.cards[i]:set_ability(G.P_CENTERS.m_stone)
+                        stones_created = stones_created + 1
+                    end
+                end
+            end
+            if stones_created > 0 then
+                local addMult = self.ability.extra.Xmult_add * stones_created
+                self.ability.x_mult = self.ability.x_mult + addMult
+                return {
+                    message = localize{type='variable',key='a_xmult',vars={addMult}},
+                    colour = G.C.MULT,
+                    card = self
+                }
+            end
+        end
+    end
 end
 
 local Card_add_to_deck_ref = Card.add_to_deck
@@ -457,6 +565,13 @@ function Card.generate_UIBox_ability_table(self)
             loc_vars = {
                 self.ability.extra.price_sub,
                 math.floor(self.ability.extra.planets_used * self.ability.extra.price_sub)
+            }
+        elseif self.ability.name == 'Transcendence' then
+            loc_vars = {}
+        elseif self.ability.name == 'Sisyphus' then
+            loc_vars = {
+                self.ability.extra.Xmult_add,
+                self.ability.x_mult
             }
         else
             customJoker = false
