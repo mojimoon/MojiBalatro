@@ -65,7 +65,7 @@ local loc_zh = {
     j_color_out_of_space = {
         name = "星之彩",
         text = {
-            "连续打出包含{C:attention}#3#{}的手牌时，",
+            "连续打出包含{C:attention}#3#{}的牌时，",
             "获得{X:mult,C:white}X#1#{}倍率",
             "否则重置倍率",
             "{C:inactive}（当前为{X:mult,C:white} X#2# {C:inactive}倍率）"
@@ -87,7 +87,7 @@ local loc_zh = {
             "获得{X:mult,C:white}X#1#{}倍率",
             "每次触发后目标点数{C:attention}-1{}",
             "{C:inactive}（A、K、Q、……、2、A）",
-            "若一手牌未触发新秩序，",
+            "若一次出牌未触发新秩序，",
             "失去{X:mult,C:white}X#2#{}倍率",
             "{C:inactive}（当前为{X:mult,C:white} X#3# {C:inactive}倍率）"
         }
@@ -129,7 +129,7 @@ local jokers = {
         slug = "color_out_of_space",
         ability = {extra = {Xmult_add = 0.5, type = 'Flush'}},
         rarity = 2,
-        cost = 8,
+        cost = 7,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
     j_garbage_time = {
@@ -137,15 +137,15 @@ local jokers = {
         slug = "garbage_time",
         ability = {Xmult = 3, extra = {Xmult_sub = 0.4}},
         rarity = 2,
-        cost = 8,
+        cost = 7,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
     j_new_order = {
         ability_name = "The New Order",
         slug = "new_order",
-        ability = {extra = {Xmult_add = 0.1, Xmult_sub = 0.1, rank = 14}},
-        rarity = 2,
-        cost = 8,
+        ability = {extra = {Xmult_add = 0.2, Xmult_sub = 0.1, rank = 14}},
+        rarity = 3,
+        cost = 9,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
     j_quantization = {
