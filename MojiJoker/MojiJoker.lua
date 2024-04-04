@@ -34,7 +34,7 @@ local loc_en = {
             "{X:mult,C:white}X#1#{} Mult when {C:attention}#4#{}",
             "is played and scored",
             "Rank decreases by {C:attention}1{} after each trigger",
-            "{C:inactive}(A, K, Q, …, 2, A)",
+            "{C:inactive}(A, K, Q, ..., 2, A)",
             "Loses {X:mult,C:white}X#2#{} Mult",
             "if a hand fails to trigger the New Order",
             "{C:inactive}(Currently {X:mult,C:white} X#3# {C:inactive} Mult)"
@@ -48,6 +48,15 @@ local loc_en = {
             "{C:mult}+#1#{} Mult per scoring card",
             "Otherwise reset",
             "{C:inactive}(Currently {C:mult}+#2#{C:inactive} Mult)"
+        }
+    },
+    j_satellite_payment = {
+        name = "Satellite Payment",
+        text = {
+            "All items in shop are {C:money}$#1#{} cheaper",
+            "per unique {C:planet} planet card used this run",
+            "{C:inactive}(Price cannot go below {C:money}$1{C:inactive})",
+            "{C:inactive}(Currently {C:money}-$#2#{C:inactive})"
         }
     }
 }
@@ -90,6 +99,15 @@ local loc_zh = {
             "每有1张计分牌，获得{C:mult}+#1#{}倍率",
             "否则重置倍率",
             "{C:inactive}（当前为{C:mult}+#2#{C:inactive}倍率）"
+        }
+    },
+    j_satellite_payment = {
+        name = "卫星支付",
+        text = {
+            "本局游戏每使用过一种{C:planet}星球牌",
+            "所有商品价格降低{C:money}$#1#{}",
+            "{C:inactive}（不会低于{C:money}$1{C:inactive}）",
+            "{C:inactive}（当前为{C:money}-$#2#{C:inactive}）"
         }
     }
 }
@@ -137,6 +155,14 @@ local jokers = {
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_satellite_payment = {
+        ability_name = "Satellite Payment",
+        slug = "satellite_payment",
+        ability = {extra = {price_sub = 0.75, planets_used = 0}},
+        rarity = 2,
+        cost = 6,
+        unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
     }
 }
 
@@ -158,6 +184,40 @@ local rank_to_str = {
 
 function rank_dec(rank)
     return rank == 2 and 14 or rank - 1
+end
+
+function satellite_payment_count()
+    local planets_used = 0
+    for k, v in pairs(G.GAME.consumeable_usage) do 
+        if v.set == 'Planet' then 
+            planets_used = planets_used + 1 
+        end 
+    end
+    return planets_used
+end
+
+function Card:set_cost()
+    self.extra_cost = 0 + G.GAME.inflation
+    if G.jokers then
+        for i = 1, #G.jokers.cards do
+            if G.jokers.cards[i].ability.name == 'Satellite Payment' then
+                self.extra_cost = self.extra_cost - math.floor(G.jokers.cards[i].ability.extra.planets_used * G.jokers.cards[i].ability.extra.price_sub)
+            end
+        end
+    end
+    if self.edition then
+        self.extra_cost = self.extra_cost + (self.edition.holo and 3 or 0) + (self.edition.foil and 2 or 0) + 
+        (self.edition.polychrome and 5 or 0) + (self.edition.negative and 5 or 0)
+    end
+    self.cost = math.max(1, math.floor((self.base_cost + self.extra_cost + 0.5)*(100-G.GAME.discount_percent)/100))
+    if self.ability.set == 'Booster' and G.GAME.modifiers.booster_ante_scaling then self.cost = self.cost + G.GAME.round_resets.ante - 1 end
+    if self.ability.set == 'Booster' and (not G.SETTINGS.tutorial_complete) and G.SETTINGS.tutorial_progress and (not G.SETTINGS.tutorial_progress.completed_parts['shop_1']) then
+        self.cost = self.cost + 3
+    end
+    if (self.ability.set == 'Planet' or (self.ability.set == 'Booster' and self.ability.name:find('Celestial'))) and #find_joker('Astronomer') > 0 then self.cost = 0 end
+    self.sell_cost = math.max(1, math.floor(self.cost/2)) + (self.ability.extra_value or 0)
+    if self.area and self.ability.couponed and (self.area == G.shop_jokers or self.area == G.shop_booster) then self.cost = 0 end
+    self.sell_cost_label = self.facing == 'back' and '?' or self.sell_cost
 end
 
 function SMODS.INIT.MojiJoker()
@@ -311,6 +371,47 @@ function SMODS.INIT.MojiJoker()
             end
         end
     end
+
+    -- Satellite Payment
+    SMODS.Jokers.j_satellite_payment.calculate = function(self, context)
+        if context.using_consumeable and not context.blueprint and context.consumeable.ability.set == 'Planet' then
+            self.ability.extra.planets_used = satellite_payment_count()
+            G.E_MANAGER:add_event(Event({func = function()
+                for k, v in pairs(G.I.CARD) do
+                    if v.set_cost then v:set_cost() end
+                end
+                return true end }))
+        end
+    end
+end
+
+local Card_add_to_deck_ref = Card.add_to_deck
+function Card:add_to_deck(from_debuff)
+    if not self.added_to_deck then
+        if self.ability.name == 'Satellite Payment' then
+            self.ability.extra.planets_used = satellite_payment_count()
+            G.E_MANAGER:add_event(Event({func = function()
+                for k, v in pairs(G.I.CARD) do
+                    if v.set_cost then v:set_cost() end
+                end
+                return true end }))
+            self.added_to_deck = true
+        end
+    end
+    Card_add_to_deck_ref(self, from_debuff)
+end
+
+local Card_remove_from_deck_ref = Card.remove_from_deck
+function Card:remove_from_deck(from_debuff)
+    if self.added_to_deck then
+        self.added_to_deck = false
+        G.E_MANAGER:add_event(Event({func = function()
+            for k, v in pairs(G.I.CARD) do
+                if v.set_cost then v:set_cost() end
+            end
+            return true end }))
+    end
+    Card_remove_from_deck_ref(self, from_debuff)
 end
 
 -- Copied and modifed from LushMod
@@ -350,6 +451,12 @@ function Card.generate_UIBox_ability_table(self)
                 self.ability.extra.mult_add,
                 self.ability.mult,
                 self.ability.extra.min_cards
+            }
+        elseif self.ability.name == 'Satellite Payment' then
+            self.ability.extra.planets_used = satellite_payment_count()
+            loc_vars = {
+                self.ability.extra.price_sub,
+                math.floor(self.ability.extra.planets_used * self.ability.extra.price_sub)
             }
         else
             customJoker = false
