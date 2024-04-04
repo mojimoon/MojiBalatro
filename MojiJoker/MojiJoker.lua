@@ -39,6 +39,16 @@ local loc_en = {
             "if a hand fails to trigger the New Order",
             "{C:inactive}(Currently {X:mult,C:white} X#3# {C:inactive} Mult)"
         }
+    },
+    j_quantization = {
+        name = "Quantization",
+        text = {
+            "If at least {C:attention}#3#{} scoring cards",
+            "are played in one hand,",
+            "{C:mult}+#1#{} Mult per scoring card",
+            "Otherwise reset",
+            "{C:inactive}(Currently {C:mult}+#2#{C:inactive} Mult)"
+        }
     }
 }
 
@@ -71,6 +81,15 @@ local loc_zh = {
             "若一手牌未触发新秩序，",
             "失去{X:mult,C:white}X#2#{}倍率",
             "{C:inactive}（当前为{X:mult,C:white} X#3# {C:inactive}倍率）"
+        }
+    },
+    j_quantization = {
+        name = "量(子)化",
+        text = {
+            "同时打出至少{C:attention}#3#{}张计分牌时，",
+            "每有1张计分牌，获得{C:mult}+#1#{}倍率",
+            "否则重置倍率",
+            "{C:inactive}（当前为{C:mult}+#2#{C:inactive}倍率）"
         }
     }
 }
@@ -109,6 +128,14 @@ local jokers = {
         ability = {extra = {Xmult_add = 0.1, Xmult_sub = 0.1, rank = 14, hand_trigger = 0}},
         rarity = 2,
         cost = 8,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_quantization = {
+        ability_name = "Quantization",
+        slug = "quantization",
+        ability = {extra = {mult_add = 1, min_cards = 3}},
+        rarity = 2,
+        cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     }
 }
@@ -167,15 +194,18 @@ function SMODS.INIT.MojiJoker()
             if next(context.poker_hands[self.ability.extra.type]) then
                 self.ability.x_mult = self.ability.x_mult + self.ability.extra.Xmult_add
                 return {
-                    extra = {focus = self, message = localize('k_upgrade_ex'), colour = G.C.MULT},
+                    message = localize{type='variable',key='a_xmult',vars={self.ability.extra.Xmult_add}},
+                    colour = G.C.MULT,
                     card = self
                 }
             else
-                self.ability.x_mult = 1
-                return {
-                    card = self,
-                    message = localize('k_reset')
-                }
+                if self.ability.x_mult > 1 then
+                    self.ability.x_mult = 1
+                    return {
+                        card = self,
+                        message = localize('k_reset')
+                    }
+                end
             end
         end
     end
@@ -210,7 +240,8 @@ function SMODS.INIT.MojiJoker()
                     self.ability.x_mult = newMult
                     return {
                         message = localize{type='variable',key='a_xmult_minus',vars={self.ability.extra.Xmult_sub}},
-                        colour = G.C.RED
+                        colour = G.C.RED,
+                        card = self
                     }
                 end
             end
@@ -226,7 +257,8 @@ function SMODS.INIT.MojiJoker()
                     self.ability.extra.rank = rank_dec(self.ability.extra.rank)
                     self.ability.extra.hand_trigger = self.ability.extra.hand_trigger + 1
                     return {
-                        extra = {focus = self, message = localize('k_upgrade_ex'), colour = G.C.MULT},
+                        message = localize{type='variable',key='a_xmult',vars={self.ability.extra.Xmult_add}},
+                        colour = G.C.MULT,
                         card = self
                     }
                 end
@@ -235,15 +267,48 @@ function SMODS.INIT.MojiJoker()
         if context.after and not context.blueprint then
             if self.ability.extra.hand_trigger == 0 then
                 self.ability.x_mult = self.ability.x_mult - self.ability.extra.Xmult_sub
-                if self.ability.x_mult < 1 then
+                if self.ability.x_mult >= 1 then
+                    return {
+                        message = localize{type='variable',key='a_xmult_minus',vars={self.ability.extra.Xmult_sub}},
+                        colour = G.C.RED,
+                        card = self
+                    }
+                else
                     self.ability.x_mult = 1
                 end
-                return {
-                    message = localize{type='variable',key='a_xmult_minus',vars={self.ability.extra.Xmult_sub}},
-                    colour = G.C.RED
-                }
             end
             self.ability.extra.hand_trigger = 0
+        end
+    end
+
+    -- Quantization
+    SMODS.Jokers.j_quantization.calculate = function(self, context)
+        if context.before and not context.blueprint then
+            if #context.scoring_hand >= self.ability.extra.min_cards then
+                local addMult = self.ability.extra.mult_add * #context.scoring_hand
+                self.ability.mult = self.ability.mult + addMult
+                return {
+                    card = self,
+                    message = localize{type='variable',key='a_mult',vars={addMult}},
+                }
+            else
+                if self.ability.mult > 0 then
+                    self.ability.mult = 0
+                    return {
+                        card = self,
+                        message = localize('k_reset')
+                    }
+                end
+            end
+        end
+        if SMODS.end_calculate_context(context) then
+            if self.ability.mult > 0 then
+                return {
+                    message = localize{type='variable',key='a_mult',vars={self.ability.mult}},
+                    colour = G.C.RED,
+                    mult_mod = self.ability.mult
+                }
+            end
         end
     end
 end
@@ -279,6 +344,12 @@ function Card.generate_UIBox_ability_table(self)
                 self.ability.extra.Xmult_sub,
                 self.ability.x_mult,
                 rank_to_str[self.ability.extra.rank]
+            }
+        elseif self.ability.name == 'Quantization' then
+            loc_vars = {
+                self.ability.extra.mult_add,
+                self.ability.mult,
+                self.ability.extra.min_cards
             }
         else
             customJoker = false
