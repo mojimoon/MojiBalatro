@@ -15,29 +15,31 @@ local loc_en = {
         text = {
             "Gain {X:mult,C:white}X#1#{} multiplier per each",
             "consecutive hand containing {C:attention}#3#{}",
-            "Otherwise, reset multiplier",
+            "Otherwise reset",
             "{C:inactive}(Currently {X:mult,C:white} X#2# {C:inactive} Mult)"
         }
     },
     j_garbage_time = {
         name = "Garbage Time",
         text = {
-            "{X:mult,C:white}X#1#{} Mult on {C:attention}first hand{}",
-            "of round, lose {X:mult,C:white}X#2#{} Mult",
-            "if blind is not defeated in one hand",
-            "{C:inactive}(Currently {X:mult,C:white} X#3# {C:inactive} Mult)"
+            "{X:mult,C:white}X#2#{} Mult,",
+            "loses {X:mult,C:white}X#1#{} Mult",
+            "if more than {C:attention}1{} hands are played",
+            "by the end of the round"
         }
     },
     j_new_order = {
         name = "The New Order",
         text = {
-            "{C:mult}+#2#{} Mult when {C:attention}#1#{}",
+            "{X:mult,C:white}X#1#{} Mult when {C:attention}#4#{}",
             "is played and scored",
-            "Rank increases by {C:attention}1{} after each trigger",
-            "{C:inactive}(A, 2, 3, ..., K, A)",
-            "{C:inactive}(Currently {C:mult} +#3# {C:inactive} Mult)"
+            "Rank decreases by {C:attention}1{} after each trigger",
+            "{C:inactive}(A, K, Q, …, 2, A)",
+            "Loses {X:mult,C:white}X#2#{} Mult",
+            "if a hand fails to trigger the New Order",
+            "{C:inactive}(Currently {X:mult,C:white} X#3# {C:inactive} Mult)"
         }
-    },
+    }
 }
 
 local loc_zh = {
@@ -53,22 +55,24 @@ local loc_zh = {
     j_garbage_time = {
         name = "垃圾时间",
         text = {
-            "每回合{C:attention}第一次{}出牌时{X:mult,C:white}X#1#{}倍率",
-            "若未在一次出牌内击败盲注，",
-            "失去{X:mult,C:white}X#2#{}倍率",
-            "{C:inactive}（当前为{X:mult,C:white} X#3# {C:inactive}倍率）"
+            "{X:mult,C:white}X#2#{}倍率",
+            "若回合结束时，所用",
+            "出牌次数超过{C:attention}1{}，",
+            "失去{X:mult,C:white}X#1#{}倍率"
         }
     },
     j_new_order = {
         name = "新秩序",
         text = {
-            "打出{C:attention}#1#{}并计分时，",
-            "获得{C:mult}+#2#{}倍率",
-            "每次触发后目标点数{C:attention}+1{}",
-            "{C:inactive}（A、2、3、……、K、A）",
-            "{C:inactive}（当前为{C:mult} +#3# {C:inactive}倍率）"
+            "打出{C:attention}#4#{}并计分时，",
+            "获得{X:mult,C:white}X#1#{}倍率",
+            "每次触发后目标点数{C:attention}-1{}",
+            "{C:inactive}（A、K、Q、……、2、A）",
+            "若一手牌未触发新秩序，",
+            "失去{X:mult,C:white}X#2#{}倍率",
+            "{C:inactive}（当前为{X:mult,C:white} X#3# {C:inactive}倍率）"
         }
-    },
+    }
 }
 
 local misc_loc_en = {
@@ -86,7 +90,7 @@ local jokers = {
     j_color_out_of_space = {
         ability_name = "Color Out of Space",
         slug = "color_out_of_space",
-        ability = {extra = {Xmult = 1, Xmult_inc = 0.5, type = 'Flush'}},
+        ability = {extra = {Xmult_add = 0.5, type = 'Flush'}},
         rarity = 2,
         cost = 8,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
@@ -94,7 +98,7 @@ local jokers = {
     j_garbage_time = {
         ability_name = "Garbage Time",
         slug = "garbage_time",
-        ability = {extra = {Xmult_base = 4, Xmult_dec = 0.5, Xmult = 4}},
+        ability = {Xmult = 3, extra = {Xmult_sub = 0.4}},
         rarity = 2,
         cost = 8,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
@@ -102,9 +106,9 @@ local jokers = {
     j_new_order = {
         ability_name = "The New Order",
         slug = "new_order",
-        ability = {extra = {mult_inc = 1, rank = 14}},
-        rarity = 1,
-        cost = 4,
+        ability = {extra = {Xmult_add = 0.1, Xmult_sub = 0.1, rank = 14, hand_trigger = 0}},
+        rarity = 2,
+        cost = 8,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     }
 }
@@ -125,8 +129,8 @@ local rank_to_str = {
     [14] = "A"
 }
 
-function rank_inc(rank)
-    return rank == 14 and 2 or rank + 1
+function rank_dec(rank)
+    return rank == 2 and 14 or rank - 1
 end
 
 function SMODS.INIT.MojiJoker()
@@ -161,21 +165,16 @@ function SMODS.INIT.MojiJoker()
     SMODS.Jokers.j_color_out_of_space.calculate = function(self, context)
         if context.before and not context.blueprint then
             if next(context.poker_hands[self.ability.extra.type]) then
-                self.ability.extra.Xmult = self.ability.extra.Xmult + self.ability.extra.Xmult_inc
+                self.ability.x_mult = self.ability.x_mult + self.ability.extra.Xmult_add
+                return {
+                    extra = {focus = self, message = localize('k_upgrade_ex'), colour = G.C.MULT},
+                    card = self
+                }
             else
-                self.ability.extra.Xmult = 1
+                self.ability.x_mult = 1
                 return {
                     card = self,
                     message = localize('k_reset')
-                }
-            end
-        end
-        if SMODS.end_calculate_context(context) then
-            if next(context.poker_hands['Flush']) and self.ability.extra.Xmult > 1 then
-                return {
-                    message = localize{type='variable',key='a_xmult',vars={self.ability.extra.Xmult}},
-                    colour = G.C.RED,
-                    Xmult_mod = self.ability.extra.Xmult
                 }
             end
         end
@@ -183,18 +182,9 @@ function SMODS.INIT.MojiJoker()
 
     -- Garbage Time
     SMODS.Jokers.j_garbage_time.calculate = function(self, context)
-        if SMODS.end_calculate_context(context) then
-            if G.GAME.current_round.hands_played == 0 then
-                return {
-                    message = localize{type='variable',key='a_xmult',vars={self.ability.extra.Xmult}},
-                    colour = G.C.RED,
-                    Xmult_mod = self.ability.extra.Xmult
-                }
-            end
-        end
-        if context.before and not context.blueprint then
-            if G.GAME.current_round.hands_played == 1 then
-                local newMult = self.ability.extra.Xmult - self.ability.extra.Xmult_dec
+        if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
+            if G.GAME.current_round.hands_played > 1 then
+                local newMult = self.ability.x_mult - self.ability.extra.Xmult_sub
                 if newMult <= 1 then
                     G.E_MANAGER:add_event(Event({
                         func = function()
@@ -203,7 +193,7 @@ function SMODS.INIT.MojiJoker()
                             self:juice_up(0.3, 0.4)
                             self.states.drag.is = true
                             self.children.center.pinch.x = true
-                            G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.3, blockable = false,
+                            G.E_MANAGER:add_event(Event({hand_trigger = 'after', delay = 0.3, blockable = false,
                                 func = function()
                                         G.jokers:remove_card(self)
                                         self:remove()
@@ -217,9 +207,9 @@ function SMODS.INIT.MojiJoker()
                         colour = G.C.FILTER
                     }
                 else
-                    self.ability.extra.Xmult = newMult
+                    self.ability.x_mult = newMult
                     return {
-                        message = localize{type='variable',key='a_xmult_minus',vars={self.ability.extra.Xmult_dec}},
+                        message = localize{type='variable',key='a_xmult_minus',vars={self.ability.extra.Xmult_sub}},
                         colour = G.C.RED
                     }
                 end
@@ -232,8 +222,9 @@ function SMODS.INIT.MojiJoker()
         if context.individual and not context.blueprint then
             if context.cardarea == G.play then
                 if context.other_card:get_id() == self.ability.extra.rank then
-                    self.ability.mult = self.ability.mult + self.ability.extra.mult_inc
-                    self.ability.extra.rank = rank_inc(self.ability.extra.rank)
+                    self.ability.x_mult = self.ability.x_mult + self.ability.extra.Xmult_add
+                    self.ability.extra.rank = rank_dec(self.ability.extra.rank)
+                    self.ability.extra.hand_trigger = self.ability.extra.hand_trigger + 1
                     return {
                         extra = {focus = self, message = localize('k_upgrade_ex'), colour = G.C.MULT},
                         card = self
@@ -241,14 +232,18 @@ function SMODS.INIT.MojiJoker()
                 end
             end
         end
-        if SMODS.end_calculate_context(context) then
-            if self.ability.mult > 0 then
+        if context.after and not context.blueprint then
+            if self.ability.extra.hand_trigger == 0 then
+                self.ability.x_mult = self.ability.x_mult - self.ability.extra.Xmult_sub
+                if self.ability.x_mult < 1 then
+                    self.ability.x_mult = 1
+                end
                 return {
-                    message = localize{type='variable',key='a_mult',vars={self.ability.mult}},
-                    colour = G.C.RED,
-                    mult_mod = self.ability.mult
+                    message = localize{type='variable',key='a_xmult_minus',vars={self.ability.extra.Xmult_sub}},
+                    colour = G.C.RED
                 }
             end
+            self.ability.extra.hand_trigger = 0
         end
     end
 end
@@ -269,21 +264,21 @@ function Card.generate_UIBox_ability_table(self)
         local customJoker = true
         if self.ability.name == 'Color Out of Space' then
             loc_vars = {
-                self.ability.extra.Xmult_inc,
-                self.ability.extra.Xmult,
+                self.ability.extra.Xmult_add,
+                self.ability.x_mult,
                 localize(self.ability.extra.type, 'poker_hands')
             }
         elseif self.ability.name == 'Garbage Time' then
             loc_vars = {
-                self.ability.extra.Xmult_base,
-                self.ability.extra.Xmult_dec,
-                self.ability.extra.Xmult
+                self.ability.extra.Xmult_sub,
+                self.ability.x_mult
             }
         elseif self.ability.name == 'The New Order' then
             loc_vars = {
-                rank_to_str[self.ability.extra.rank],
-                self.ability.extra.mult_inc,
-                self.ability.mult
+                self.ability.extra.Xmult_add,
+                self.ability.extra.Xmult_sub,
+                self.ability.x_mult,
+                rank_to_str[self.ability.extra.rank]
             }
         else
             customJoker = false
