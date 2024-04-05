@@ -63,7 +63,39 @@ local loc_en = {
         name = "Transcendence",
         text = {
             "When {C:attention}Blind{} is selected,",
-            "create a {C:tarot}The Hanged Man{}", 
+            "create a copy of {C:tarot}The Hanged Man{}", 
+            "{C:inactive}(Must have room)"
+        }
+    },
+    j_moji_star = {
+        name = "Calamity Star",
+        text = {
+            "When {C:attention}Blind{} is selected,",
+            "create a copy of {C:tarot}The Star{}",
+            "{C:inactive}(Must have room)"
+        }
+    },
+    j_moji_moon = {
+        name = "Crescent Moon",
+        text = {
+            "When {C:attention}Blind{} is selected,",
+            "create a copy of {C:tarot}The Moon{}",
+            "{C:inactive}(Must have room)"
+        }
+    },
+    j_moji_sun = {
+        name = "Solar Eclipse",
+        text = {
+            "When {C:attention}Blind{} is selected,",
+            "create a copy of {C:tarot}The Sun{}",
+            "{C:inactive}(Must have room)"
+        }
+    },
+    j_moji_world = {
+        name = "Doomed World",
+        text = {
+            "When {C:attention}Blind{} is selected,",
+            "create a copy of {C:tarot}The World{}",
             "{C:inactive}(Must have room)"
         }
     },
@@ -134,6 +166,38 @@ local loc_zh = {
         text = {
             "选择{C:attention}盲注{}后",
             "生成一张{C:tarot}倒吊人{}",
+            "{C:inactive}（必须有空位）"
+        }
+    },
+    j_moji_star = {
+        name = "灾星",
+        text = {
+            "选择{C:attention}盲注{}后",
+            "生成一张{C:tarot}星星{}",
+            "{C:inactive}（必须有空位）"
+        }
+    },
+    j_moji_moon = {
+        name = "残月",
+        text = {
+            "选择{C:attention}盲注{}后",
+            "生成一张{C:tarot}月亮{}",
+            "{C:inactive}（必须有空位）"
+        }
+    },
+    j_moji_sun = {
+        name = "日食",
+        text = {
+            "选择{C:attention}盲注{}后",
+            "生成一张{C:tarot}太阳{}",
+            "{C:inactive}（必须有空位）"
+        }
+    },
+    j_moji_world = {
+        name = "末世",
+        text = {
+            "选择{C:attention}盲注{}后",
+            "生成一张{C:tarot}世界{}",
             "{C:inactive}（必须有空位）"
         }
     },
@@ -208,6 +272,38 @@ local jokers = {
         ability = {},
         rarity = 1,
         cost = 5,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_moji_star = {
+        ability_name = "Calamity Star",
+        slug = "moji_star",
+        ability = {},
+        rarity = 1,
+        cost = 4,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_moji_moon = {
+        ability_name = "Crescent Moon",
+        slug = "moji_moon",
+        ability = {},
+        rarity = 1,
+        cost = 4,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_moji_sun = {
+        ability_name = "Solar Eclipse",
+        slug = "moji_sun",
+        ability = {},
+        rarity = 1,
+        cost = 4,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_moji_world = {
+        ability_name = "Doomed World",
+        slug = "moji_world",
+        ability = {},
+        rarity = 1,
+        cost = 4,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
     j_sisyphus = {
@@ -448,6 +544,94 @@ function SMODS.INIT.MojiJoker()
                         G.E_MANAGER:add_event(Event({
                             func = function() 
                                 local card = create_card('Tarot',G.consumeables, nil, nil, nil, nil, 'c_hanged_man', nil)
+                                card:add_to_deck()
+                                G.consumeables:emplace(card)
+                                G.GAME.consumeable_buffer = 0
+                                return true
+                            end}))   
+                            card_eval_status_text(context.blueprint_card or self, 'extra', nil, nil, nil, {message = localize('k_plus_tarot'), colour = G.C.PURPLE})                       
+                        return true
+                    end)}))
+            end
+        end
+    end
+
+    -- Calamity Star
+    SMODS.Jokers.j_moji_star.calculate = function(self, context)
+        if context.setting_blind and not self.getting_sliced and not context.blueprint then
+            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                G.E_MANAGER:add_event(Event({
+                    func = (function()
+                        G.E_MANAGER:add_event(Event({
+                            func = function() 
+                                local card = create_card('Tarot',G.consumeables, nil, nil, nil, nil, 'c_star', nil)
+                                card:add_to_deck()
+                                G.consumeables:emplace(card)
+                                G.GAME.consumeable_buffer = 0
+                                return true
+                            end}))   
+                            card_eval_status_text(context.blueprint_card or self, 'extra', nil, nil, nil, {message = localize('k_plus_tarot'), colour = G.C.PURPLE})                       
+                        return true
+                    end)}))
+            end
+        end
+    end
+
+    -- Crescent Moon
+    SMODS.Jokers.j_moji_moon.calculate = function(self, context)
+        if context.setting_blind and not self.getting_sliced and not context.blueprint then
+            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                G.E_MANAGER:add_event(Event({
+                    func = (function()
+                        G.E_MANAGER:add_event(Event({
+                            func = function() 
+                                local card = create_card('Tarot',G.consumeables, nil, nil, nil, nil, 'c_moon', nil)
+                                card:add_to_deck()
+                                G.consumeables:emplace(card)
+                                G.GAME.consumeable_buffer = 0
+                                return true
+                            end}))   
+                            card_eval_status_text(context.blueprint_card or self, 'extra', nil, nil, nil, {message = localize('k_plus_tarot'), colour = G.C.PURPLE})                       
+                        return true
+                    end)}))
+            end
+        end
+    end
+
+    -- Solar Eclipse
+    SMODS.Jokers.j_moji_sun.calculate = function(self, context)
+        if context.setting_blind and not self.getting_sliced and not context.blueprint then
+            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                G.E_MANAGER:add_event(Event({
+                    func = (function()
+                        G.E_MANAGER:add_event(Event({
+                            func = function() 
+                                local card = create_card('Tarot',G.consumeables, nil, nil, nil, nil, 'c_sun', nil)
+                                card:add_to_deck()
+                                G.consumeables:emplace(card)
+                                G.GAME.consumeable_buffer = 0
+                                return true
+                            end}))   
+                            card_eval_status_text(context.blueprint_card or self, 'extra', nil, nil, nil, {message = localize('k_plus_tarot'), colour = G.C.PURPLE})                       
+                        return true
+                    end)}))
+            end
+        end
+    end
+
+    -- Doomed World
+    SMODS.Jokers.j_moji_world.calculate = function(self, context)
+        if context.setting_blind and not self.getting_sliced and not context.blueprint then
+            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                G.E_MANAGER:add_event(Event({
+                    func = (function()
+                        G.E_MANAGER:add_event(Event({
+                            func = function() 
+                                local card = create_card('Tarot',G.consumeables, nil, nil, nil, nil, 'c_world', nil)
                                 card:add_to_deck()
                                 G.consumeables:emplace(card)
                                 G.GAME.consumeable_buffer = 0
