@@ -113,11 +113,20 @@ local loc_en = {
     j_well_laid_plans = {
         name = "Well-Laid Plans",
         text = {
-            "Upgrade level of played {C:attention}poker hand{}",
+            "{C:attention}Upgrade{} level of played poker hand",
             "if it is a {C:attention}#1#{}",
             "Poker hand changes after each {C:attention}discard{}"
         }
-    }
+    },
+    j_moji_diamond = {
+        name = "Pursue the Stars",
+        text = {
+            "{C:mult}+Difference{} Mult",
+            "per each {C:diamonds}#2#{} card in your deck",
+            "exceeding {C:attention}#3#{}",
+            "{C:inactive}(Currently {C:mult}+#1#{C:inactive} Mult)"
+        }
+    },
 }
 
 local loc_zh = {
@@ -223,11 +232,19 @@ local loc_zh = {
     j_well_laid_plans = {
         name = "计划妥当",
         text = {
-            "若{C:attention}出牌牌型{}为{C:attention}#1#{}，",
-            "将其升级",
+            "若出牌牌型为{C:attention}#1#{}，",
+            "将其{C:attention}升级{}",
             "每次{C:attention}弃牌{}后牌型都会改变"
         }
-    }
+    },
+    j_moji_diamond = {
+        name = "逐星",
+        text = {
+            "牌组中的{C:diamonds}#2#{}每比{C:attention}#3#{}张",
+            "多1张，获得{C:mult}+差值{}倍率",
+            "{C:inactive}（当前为{C:mult}+#1#{C:inactive}倍率）"
+        }
+    },
 }
 
 local misc_loc_en = {
@@ -295,7 +312,7 @@ local jokers = {
         slug = "moji_star",
         ability = {},
         rarity = 1,
-        cost = 4,
+        cost = 5,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
     j_moji_moon = {
@@ -303,7 +320,7 @@ local jokers = {
         slug = "moji_moon",
         ability = {},
         rarity = 1,
-        cost = 4,
+        cost = 5,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
     j_moji_sun = {
@@ -311,7 +328,7 @@ local jokers = {
         slug = "moji_sun",
         ability = {},
         rarity = 1,
-        cost = 4,
+        cost = 5,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
     j_moji_world = {
@@ -319,7 +336,7 @@ local jokers = {
         slug = "moji_world",
         ability = {},
         rarity = 1,
-        cost = 4,
+        cost = 5,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
     j_sisyphus = {
@@ -334,6 +351,14 @@ local jokers = {
         ability_name = "Well-Laid Plans",
         slug = "well_laid_plans",
         ability = {extra = {poker_hand = 'High Card'}},
+        rarity = 2,
+        cost = 6,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_moji_diamond = {
+        ability_name = "Pursue the Stars",
+        slug = "moji_diamond",
+        ability = {extra = {mult_add = 2, suit = 'Diamonds', diff_base = 13}},
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
@@ -360,7 +385,7 @@ function rank_dec(rank)
     return rank == 2 and 14 or rank - 1
 end
 
-function satellite_payment_count()
+function count_used_planets()
     local planets_used = 0
     for k, v in pairs(G.GAME.consumeable_usage) do 
         if v.set == 'Planet' then 
@@ -378,6 +403,16 @@ function well_laid_plans_choose(old_hand)
         end
     end
     return pseudorandom_element(_poker_hands, pseudoseed('well_laid_plans'))
+end
+
+function count_suit(suit)
+    local count = 0
+    for k, v in pairs(G.playing_cards) do
+        if v.base.suit == suit and v.ability.effect ~= 'Stone Card' then
+            count = count + 1
+        end
+    end
+    return count
 end
 
 function Card:set_cost()
@@ -559,7 +594,7 @@ function SMODS.INIT.MojiJoker()
     -- Satellite Payment
     SMODS.Jokers.j_satellite_payment.calculate = function(self, context)
         if context.using_consumeable and not context.blueprint and context.consumeable.ability.set == 'Planet' then
-            self.ability.extra.planets_used = satellite_payment_count()
+            self.ability.extra.planets_used = count_used_planets()
             G.E_MANAGER:add_event(Event({func = function()
                 for k, v in pairs(G.I.CARD) do
                     if v.set_cost then v:set_cost() end
@@ -732,13 +767,27 @@ function SMODS.INIT.MojiJoker()
             end
         end
     end
+
+    -- Pursue the Stars
+    SMODS.Jokers.j_moji_diamond.calculate = function(self, context)
+        if SMODS.end_calculate_context(context) then
+            local diff = count_suit(self.ability.extra.suit) - self.ability.extra.diff_base
+            if diff > 0 then
+                return {
+                    message = localize{type='variable',key='a_mult',vars={diff * diff}},
+                    colour = G.C.MULT,
+                    mult_mod = diff * diff
+                }
+            end
+        end
+    end
 end
 
 local Card_add_to_deck_ref = Card.add_to_deck
 function Card:add_to_deck(from_debuff)
     if not self.added_to_deck then
         if self.ability.name == 'Satellite Payment' then
-            self.ability.extra.planets_used = satellite_payment_count()
+            self.ability.extra.planets_used = count_used_planets()
             G.E_MANAGER:add_event(Event({func = function()
                 for k, v in pairs(G.I.CARD) do
                     if v.set_cost then v:set_cost() end
@@ -810,7 +859,7 @@ function Card.generate_UIBox_ability_table(self)
                 self.ability.extra.min_cards
             }
         elseif self.ability.name == 'Satellite Payment' then
-            self.ability.extra.planets_used = satellite_payment_count()
+            self.ability.extra.planets_used = count_used_planets()
             loc_vars = {
                 self.ability.extra.price_sub,
                 math.floor(self.ability.extra.planets_used * self.ability.extra.price_sub)
@@ -825,6 +874,13 @@ function Card.generate_UIBox_ability_table(self)
         elseif self.ability.name == 'Well-Laid Plans' then
             loc_vars = {
                 localize(self.ability.extra.poker_hand, 'poker_hands')
+            }
+        elseif self.ability.name == 'Pursue the Stars' then
+            local diff = G.playing_cards and count_suit(self.ability.extra.suit) - self.ability.extra.diff_base or 0
+            loc_vars = {
+                diff > 0 and diff * diff or 0,
+                localize(self.ability.extra.suit, 'suits_singular'),
+                self.ability.extra.diff_base
             }
         else
             customJoker = false

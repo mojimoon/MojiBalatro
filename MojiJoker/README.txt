@@ -26,19 +26,19 @@ X3倍率
 选择盲注后，生成一张倒吊人
 
 灾星 Calamity Star
-普通 4
+普通 5
 选择盲注后，生成一张星星
 
 残月 Crescent Moon
-普通 4
+普通 5
 选择盲注后，生成一张月亮
 
 日食 Solar Eclipse
-普通 4
+普通 5
 选择盲注后，生成一张太阳
 
 末世 Doomed World
-普通 4
+普通 5
 选择盲注后，生成一张世界
 
 西西弗斯 Sisyphus
@@ -52,6 +52,8 @@ X3倍率
 每次弃牌后牌型都会改变
 
 逐星 Pursue the Stars
+罕见 6
+牌组中的方片牌数量每比13张多1张，获得+差值倍率
 
 捧月 Embrace the Moon
 
