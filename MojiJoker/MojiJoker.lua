@@ -109,6 +109,14 @@ local loc_en = {
             "created by Sisyphus",
             "{C:inactive}(Currently {X:mult,C:white} X#2# {C:inactive} Mult)"
         }
+    },
+    j_well_laid_plans = {
+        name = "Well-Laid Plans",
+        text = {
+            "Upgrade level of played {C:attention}poker hand{}",
+            "if it is a {C:attention}#1#{}",
+            "Poker hand changes after each {C:attention}discard{}"
+        }
     }
 }
 
@@ -210,6 +218,14 @@ local loc_zh = {
             "西西弗斯每创建1张石头牌，",
             "获得{X:mult,C:white}X#1#{}倍率",
             "{C:inactive}（当前为{X:mult,C:white} X#2# {C:inactive}倍率）"
+        }
+    },
+    j_well_laid_plans = {
+        name = "计划妥当",
+        text = {
+            "若{C:attention}出牌牌型{}为{C:attention}#1#{}，",
+            "将其升级",
+            "每次{C:attention}弃牌{}后牌型都会改变"
         }
     }
 }
@@ -313,6 +329,14 @@ local jokers = {
         rarity = 3,
         cost = 9,
         unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
+    },
+    j_well_laid_plans = {
+        ability_name = "Well-Laid Plans",
+        slug = "well_laid_plans",
+        ability = {extra = {poker_hand = 'High Card'}},
+        rarity = 2,
+        cost = 6,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     }
 }
 
@@ -344,6 +368,16 @@ function satellite_payment_count()
         end 
     end
     return planets_used
+end
+
+function well_laid_plans_choose(old_hand)
+    local _poker_hands = {}
+    for k, v in pairs(G.GAME.hands) do
+        if v.visible and k ~= old_hand then
+            _poker_hands[#_poker_hands + 1] = k
+        end
+    end
+    return pseudorandom_element(_poker_hands, pseudoseed('well_laid_plans'))
 end
 
 function Card:set_cost()
@@ -675,6 +709,29 @@ function SMODS.INIT.MojiJoker()
             end
         end
     end
+
+    -- Well-Laid Plans
+    SMODS.Jokers.j_well_laid_plans.calculate = function(self, context)
+        if context.before then
+            if context.scoring_name == self.ability.extra.poker_hand then
+                return {
+                    card = self,
+                    level_up = true,
+                    message = localize('k_level_up_ex')
+                }
+            end
+        end
+        if context.discard and not context.blueprint and context.other_card == context.full_hand[#context.full_hand] then
+            local new_hand = well_laid_plans_choose(context.hand)
+            if new_hand then
+                self.ability.extra.poker_hand = new_hand
+                return {
+                    card = self,
+                    message = localize(new_hand, 'poker_hands')
+                }
+            end
+        end
+    end
 end
 
 local Card_add_to_deck_ref = Card.add_to_deck
@@ -704,6 +761,14 @@ function Card:remove_from_deck(from_debuff)
             return true end }))
     end
     Card_remove_from_deck_ref(self, from_debuff)
+end
+
+local Card_set_ability_ref = Card.set_ability
+function Card:set_ability(center, initial, delay_sprites)
+    Card_set_ability_ref(self, center, initial, delay_sprites)
+    if self.ability.name == 'Well-Laid Plans' then
+        self.ability.extra.poker_hand = well_laid_plans_choose(nil)
+    end
 end
 
 -- Copied and modifed from LushMod
@@ -750,12 +815,16 @@ function Card.generate_UIBox_ability_table(self)
                 self.ability.extra.price_sub,
                 math.floor(self.ability.extra.planets_used * self.ability.extra.price_sub)
             }
-        elseif self.ability.name == 'Transcendence' then
+        elseif self.ability.name == 'Transcendence' or self.ability.name == 'Calamity Star' or self.ability.name == 'Crescent Moon' or self.ability.name == 'Solar Eclipse' or self.ability.name == 'Doomed World' then
             loc_vars = {}
         elseif self.ability.name == 'Sisyphus' then
             loc_vars = {
                 self.ability.extra.Xmult_add,
                 self.ability.x_mult
+            }
+        elseif self.ability.name == 'Well-Laid Plans' then
+            loc_vars = {
+                localize(self.ability.extra.poker_hand, 'poker_hands')
             }
         else
             customJoker = false

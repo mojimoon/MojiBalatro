@@ -45,3 +45,16 @@ X3倍率
 稀有 9
 选择盲注后，随机选择一种点数，将牌组中该点数的牌增强为石头牌
 西西弗斯每创建1张石头牌，获得X0.15倍率
+
+计划妥当 Well Laid Plans
+罕见 6
+若出牌牌型为[牌型]，将其升级
+每次弃牌后牌型都会改变
+
+逐星 Pursue the Stars
+
+捧月 Embrace the Moon
+
+执日 Hold the Sun
+
+救世 Salvage the World
