@@ -8,6 +8,7 @@
 ------------MOD CODE -------------------------
 
 local MOD_ID = "MojiJoker"
+local MOD_VERSION = "20240405.1"
 
 local loc_en = {
     j_color_out_of_space = {
@@ -342,7 +343,7 @@ local jokers = {
     j_satellite_payment = {
         ability_name = "Satellite Payment",
         slug = "satellite_payment",
-        ability = {extra = {price_sub = 0.75, planets_used = 0}},
+        ability = {extra = {price_sub = 1, planets_used = 0}},
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
@@ -390,7 +391,7 @@ local jokers = {
     j_sisyphus = {
         ability_name = "Sisyphus",
         slug = "sisyphus",
-        ability = {extra = {Xmult_add = 0.15}},
+        ability = {extra = {Xmult_add = 0.1}},
         rarity = 3,
         cost = 9,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
@@ -432,7 +433,7 @@ local jokers = {
         slug = "well_laid_plans",
         ability = {extra = {poker_hand = 'High Card'}},
         rarity = 2,
-        cost = 6,
+        cost = 7,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     }
 }
@@ -502,7 +503,7 @@ function Card:set_cost()
     if G.jokers then
         for i = 1, #G.jokers.cards do
             if G.jokers.cards[i].ability.name == 'Satellite Payment' then
-                self.extra_cost = self.extra_cost - math.floor(G.jokers.cards[i].ability.extra.planets_used * G.jokers.cards[i].ability.extra.price_sub)
+                self.extra_cost = self.extra_cost - G.jokers.cards[i].ability.extra.planets_used * G.jokers.cards[i].ability.extra.price_sub
             end
         end
     end
@@ -1014,7 +1015,7 @@ function Card.generate_UIBox_ability_table(self)
             self.ability.extra.planets_used = count_used_planets()
             loc_vars = {
                 self.ability.extra.price_sub,
-                math.floor(self.ability.extra.planets_used * self.ability.extra.price_sub)
+                self.ability.extra.planets_used * self.ability.extra.price_sub
             }
         elseif self.ability.name == 'Transcendence' or self.ability.name == 'Calamity Star' or self.ability.name == 'Crescent Moon' or self.ability.name == 'Solar Eclipse' or self.ability.name == 'Doomed World' then
             loc_vars = {}
