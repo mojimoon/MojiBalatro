@@ -8,7 +8,7 @@
 ------------MOD CODE -------------------------
 
 local MOD_ID = "MojiJoker"
-local MOD_VERSION = "20240405.1"
+local MOD_VERSION = "20240405.2"
 
 local loc_en = {
     j_color_out_of_space = {
@@ -150,6 +150,14 @@ local loc_en = {
             "{C:attention}Upgrade{} level of played poker hand",
             "if it is a {C:attention}#1#{}",
             "Poker hand changes after each {C:attention}discard{}"
+        }
+    },
+    j_best_of_three = {
+        name = "Best-of-Three",
+        text = {
+            "{C:attention}Upgrade{} level of played poker hand",
+            "each time it is played {C:attention}#1#{} times",
+            "in the same round"
         }
     }
 }
@@ -293,6 +301,14 @@ local loc_zh = {
             "将其{C:attention}升级{}",
             "每次{C:attention}弃牌{}后牌型都会改变"
         }
+    },
+    j_best_of_three = {
+        name = "BO3",
+        text = {
+            "每在同一回合中",
+            "打出同一牌型{C:attention}#1#{}次，",
+            "将其升级"
+        }
     }
 }
 
@@ -432,6 +448,14 @@ local jokers = {
         ability_name = "Well-Laid Plans",
         slug = "well_laid_plans",
         ability = {extra = {poker_hand = 'High Card'}},
+        rarity = 2,
+        cost = 7,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_best_of_three = {
+        ability_name = "Best-of-Three",
+        slug = "best_of_three",
+        ability = {extra = {per = 2, trigger_table = {}, triggered_this_hand = false}},
         rarity = 2,
         cost = 7,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
@@ -663,6 +687,7 @@ function SMODS.INIT.MojiJoker()
                 end
             end
         end
+
         if SMODS.end_calculate_context(context) then
             if self.ability.mult > 0 then
                 return {
@@ -847,6 +872,7 @@ function SMODS.INIT.MojiJoker()
         if context.setting_blind and not context.blueprint then
             self.ability.extra.trigger_cnt = 0
         end
+
         if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
             self.ability.extra.trigger_cnt = count_suit(G.deck.cards, self.ability.extra.suit)
         end
@@ -857,6 +883,7 @@ function SMODS.INIT.MojiJoker()
         if context.setting_blind and not self.getting_sliced and not context.blueprint then
             self.ability.extra.trigger_hand = -1
         end
+
         if context.before then
             if self.ability.extra.trigger_hand ~= -1 and G.GAME.current_round.hands_played > self.ability.extra.trigger_hand then return end
             local has_hearts = false
@@ -882,6 +909,7 @@ function SMODS.INIT.MojiJoker()
         if context.before then
             self.ability.extra.trigger_cnt = 0
         end
+
         if context.individual and not context.blueprint then
             if context.cardarea == G.hand then
                 if context.other_card:is_suit(self.ability.extra.suit) and not context.other_card.debuff then
@@ -892,12 +920,15 @@ function SMODS.INIT.MojiJoker()
                 end
             end
         end
+
         if SMODS.end_calculate_context(context) then
-            return {
-                message = localize{type='variable',key='a_chips',vars={self.ability.extra.chips * self.ability.extra.trigger_cnt}},
-                colour = G.C.CHIPS,
-                chip_mod = self.ability.extra.chips * self.ability.extra.trigger_cnt
-            }
+            if self.ability.extra.trigger_cnt > 0 then
+                return {
+                    message = localize{type='variable',key='a_chips',vars={self.ability.extra.chips * self.ability.extra.trigger_cnt}},
+                    colour = G.C.CHIPS,
+                    chip_mod = self.ability.extra.chips * self.ability.extra.trigger_cnt
+                }
+            end
         end
     end
 
@@ -912,6 +943,7 @@ function SMODS.INIT.MojiJoker()
                 }
             end
         end
+
         if context.discard and not context.blueprint and context.other_card == context.full_hand[#context.full_hand] then
             local new_hand = well_laid_plans_choose(self.ability.extra.poker_hand)
             if new_hand then
@@ -921,6 +953,32 @@ function SMODS.INIT.MojiJoker()
                     message = localize(new_hand, 'poker_hands')
                 }
             end
+        end
+    end
+
+    SMODS.Jokers.j_best_of_three.calculate = function(self, context)
+        if context.setting_blind and not context.blueprint and not self.getting_sliced then
+            for k, v in pairs(G.GAME.hands) do
+                self.ability.extra.trigger_table[k] = 0
+            end
+        end
+
+        if context.before and not context.individual and not context.repetition then
+            if not self.ability.extra.triggered_this_hand then
+                self.ability.extra.trigger_table[context.scoring_name] = self.ability.extra.trigger_table[context.scoring_name] + 1
+                self.ability.extra.triggered_this_hand = true
+            end
+            if self.ability.extra.trigger_table[context.scoring_name] % self.ability.extra.per == 0 then
+                return {
+                    card = self,
+                    level_up = true,
+                    message = localize('k_level_up_ex')
+                }
+            end
+        end
+
+        if context.after and not context.blueprint then
+            self.ability.extra.triggered_this_hand = false
         end
     end
 end
@@ -1049,6 +1107,10 @@ function Card.generate_UIBox_ability_table(self)
         elseif self.ability.name == 'Well-Laid Plans' then
             loc_vars = {
                 localize(self.ability.extra.poker_hand, 'poker_hands')
+            }
+        elseif self.ability.name == 'Best-of-Three' then
+            loc_vars = {
+                self.ability.extra.per
             }
         else
             customJoker = false
