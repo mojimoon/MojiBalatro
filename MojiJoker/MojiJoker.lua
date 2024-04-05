@@ -110,14 +110,6 @@ local loc_en = {
             "{C:inactive}(Currently {X:mult,C:white} X#2# {C:inactive} Mult)"
         }
     },
-    j_well_laid_plans = {
-        name = "Well-Laid Plans",
-        text = {
-            "{C:attention}Upgrade{} level of played poker hand",
-            "if it is a {C:attention}#1#{}",
-            "Poker hand changes after each {C:attention}discard{}"
-        }
-    },
     j_moji_diamonds = {
         name = "Pursue the Stars",
         text = {
@@ -125,6 +117,15 @@ local loc_en = {
             "per {C:diamonds}#2#{} card in your deck",
             "exceeding {C:attention}#3#{}",
             "{C:inactive}(Currently {C:mult}+#1#{C:inactive} Mult)"
+        }
+    },
+    j_moji_clubs = {
+        name = "Embrace the Moon",
+        text = {
+            "Earn {C:money}$#1#{}",
+            "for every {C:attention}#3#{} {C:clubs}#2#{} card",
+            "in the remaining deck",
+            "at the end of the round"
         }
     },
     j_moji_hearts = {
@@ -140,6 +141,14 @@ local loc_en = {
         text = {
             "{C:chips}+#1#{} Chips",
             "per {C:spades}#2#{} card in your hand"
+        }
+    },
+    j_well_laid_plans = {
+        name = "Well-Laid Plans",
+        text = {
+            "{C:attention}Upgrade{} level of played poker hand",
+            "if it is a {C:attention}#1#{}",
+            "Poker hand changes after each {C:attention}discard{}"
         }
     }
 }
@@ -244,14 +253,6 @@ local loc_zh = {
             "{C:inactive}（当前为{X:mult,C:white} X#2# {C:inactive}倍率）"
         }
     },
-    j_well_laid_plans = {
-        name = "计划妥当",
-        text = {
-            "若出牌牌型为{C:attention}#1#{}，",
-            "将其{C:attention}升级{}",
-            "每次{C:attention}弃牌{}后牌型都会改变"
-        }
-    },
     j_moji_diamonds = {
         name = "逐星",
         text = {
@@ -259,6 +260,14 @@ local loc_zh = {
             "每比{C:attention}#3#{}张多1张，",
             "获得{C:mult}+差值{}倍率",
             "{C:inactive}（当前为{C:mult}+#1#{C:inactive}倍率）"
+        }
+    },
+    j_moji_clubs = {
+        name = "捧月",
+        text = {
+            "回合结束时，剩余牌组中",
+            "每有{C:attention}#3#{}张{C:clubs}#2#{}牌，",
+            "获得{C:money}$#1#{}"
         }
     },
     j_moji_hearts = {
@@ -276,6 +285,14 @@ local loc_zh = {
             "给予{C:chips}+#1#{}筹码"
         }
     },
+    j_well_laid_plans = {
+        name = "计划妥当",
+        text = {
+            "若出牌牌型为{C:attention}#1#{}，",
+            "将其{C:attention}升级{}",
+            "每次{C:attention}弃牌{}后牌型都会改变"
+        }
+    }
 }
 
 local misc_loc_en = {
@@ -378,14 +395,6 @@ local jokers = {
         cost = 9,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_well_laid_plans = {
-        ability_name = "Well-Laid Plans",
-        slug = "well_laid_plans",
-        ability = {extra = {poker_hand = 'High Card'}},
-        rarity = 2,
-        cost = 6,
-        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
-    },
     j_moji_diamonds = {
         ability_name = "Pursue the Stars",
         slug = "moji_diamonds",
@@ -393,6 +402,14 @@ local jokers = {
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_moji_clubs = {
+        ability_name = "Embrace the Moon",
+        slug = "moji_clubs",
+        ability = {extra = {dollars = 2, per = 3, suit = 'Clubs', trigger_cnt = 0}},
+        rarity = 2,
+        cost = 6,
+        unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
     },
     j_moji_hearts = {
         ability_name = "Hold the Sun",
@@ -406,6 +423,14 @@ local jokers = {
         ability_name = "Salvage the World",
         slug = "moji_spades",
         ability = {extra = {chips = 100, suit = 'Spades', trigger_cnt = 0}},
+        rarity = 2,
+        cost = 6,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_well_laid_plans = {
+        ability_name = "Well-Laid Plans",
+        slug = "well_laid_plans",
+        ability = {extra = {poker_hand = 'High Card'}},
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
@@ -450,6 +475,16 @@ function well_laid_plans_choose(old_hand)
         end
     end
     return pseudorandom_element(_poker_hands, pseudoseed('well_laid_plans'))
+end
+
+function count_base_suit(cards, suit)
+    local count = 0
+    for k, v in pairs(cards) do
+        if v.base.suit == suit and v.ability.effect ~= 'Stone Card' then
+            count = count + 1
+        end
+    end
+    return count
 end
 
 function count_suit(cards, suit)
@@ -792,33 +827,10 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
-    -- Well-Laid Plans
-    SMODS.Jokers.j_well_laid_plans.calculate = function(self, context)
-        if context.before then
-            if context.scoring_name == self.ability.extra.poker_hand then
-                return {
-                    card = self,
-                    level_up = true,
-                    message = localize('k_level_up_ex')
-                }
-            end
-        end
-        if context.discard and not context.blueprint and context.other_card == context.full_hand[#context.full_hand] then
-            local new_hand = well_laid_plans_choose(self.ability.extra.poker_hand)
-            if new_hand then
-                self.ability.extra.poker_hand = new_hand
-                return {
-                    card = self,
-                    message = localize(new_hand, 'poker_hands')
-                }
-            end
-        end
-    end
-
     -- Pursue the Stars
     SMODS.Jokers.j_moji_diamonds.calculate = function(self, context)
         if SMODS.end_calculate_context(context) then
-            local diff = count_suit(G.playing_card, self.ability.extra.suit) - self.ability.extra.diff_base
+            local diff = count_base_suit(G.playing_card, self.ability.extra.suit) - self.ability.extra.diff_base
             if diff > 0 then
                 return {
                     message = localize{type='variable',key='a_mult',vars={diff * diff}},
@@ -826,6 +838,16 @@ function SMODS.INIT.MojiJoker()
                     mult_mod = diff * diff
                 }
             end
+        end
+    end
+
+    -- Embrace the Moon
+    SMODS.Jokers.j_moji_clubs.calculate = function(self, context)
+        if context.setting_blind and not context.blueprint then
+            self.ability.extra.trigger_cnt = 0
+        end
+        if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
+            self.ability.extra.trigger_cnt = count_suit(G.deck.cards, self.ability.extra.suit)
         end
     end
 
@@ -877,6 +899,29 @@ function SMODS.INIT.MojiJoker()
             }
         end
     end
+
+    -- Well-Laid Plans
+    SMODS.Jokers.j_well_laid_plans.calculate = function(self, context)
+        if context.before then
+            if context.scoring_name == self.ability.extra.poker_hand then
+                return {
+                    card = self,
+                    level_up = true,
+                    message = localize('k_level_up_ex')
+                }
+            end
+        end
+        if context.discard and not context.blueprint and context.other_card == context.full_hand[#context.full_hand] then
+            local new_hand = well_laid_plans_choose(self.ability.extra.poker_hand)
+            if new_hand then
+                self.ability.extra.poker_hand = new_hand
+                return {
+                    card = self,
+                    message = localize(new_hand, 'poker_hands')
+                }
+            end
+        end
+    end
 end
 
 local Card_add_to_deck_ref = Card.add_to_deck
@@ -914,6 +959,17 @@ function Card:set_ability(center, initial, delay_sprites)
     if self.ability.name == 'Well-Laid Plans' then
         self.ability.extra.poker_hand = well_laid_plans_choose(nil)
     end
+end
+
+local Card_calculate_dollar_bonus_ref = Card.calculate_dollar_bonus
+function Card:calculate_dollar_bonus()
+    if self.debuff then return end
+    if self.ability.set == 'Joker' then
+        if self.ability.name == 'Embrace the Moon' then
+            return self.ability.extra.dollars * math.floor(self.ability.extra.trigger_cnt / self.ability.extra.per)
+        end
+    end
+    return Card_calculate_dollar_bonus_ref(self)
 end
 
 -- Copied and modifed from LushMod
@@ -967,12 +1023,8 @@ function Card.generate_UIBox_ability_table(self)
                 self.ability.extra.Xmult_add,
                 self.ability.x_mult
             }
-        elseif self.ability.name == 'Well-Laid Plans' then
-            loc_vars = {
-                localize(self.ability.extra.poker_hand, 'poker_hands')
-            }
         elseif self.ability.name == 'Pursue the Stars' then
-            local diff = G.playing_cards and (count_suit(G.playing_cards, self.ability.extra.suit) - self.ability.extra.diff_base) or 0
+            local diff = G.playing_cards and (count_base_suit(G.playing_cards, self.ability.extra.suit) - self.ability.extra.diff_base) or 0
             loc_vars = {
                 diff > 0 and diff * diff or 0,
                 localize(self.ability.extra.suit, 'suits_singular'),
@@ -986,6 +1038,16 @@ function Card.generate_UIBox_ability_table(self)
             loc_vars = {
                 self.ability.extra.chips,
                 localize(self.ability.extra.suit, 'suits_singular')
+            }
+        elseif self.ability.name == 'Embrace the Moon' then
+            loc_vars = {
+                self.ability.extra.dollars,
+                localize(self.ability.extra.suit, 'suits_singular'),
+                self.ability.extra.per
+            }
+        elseif self.ability.name == 'Well-Laid Plans' then
+            loc_vars = {
+                localize(self.ability.extra.poker_hand, 'poker_hands')
             }
         else
             customJoker = false
