@@ -13,7 +13,7 @@ local loc_en = {
     j_color_out_of_space = {
         name = "Color Out of Space",
         text = {
-            "Gain {X:mult,C:white}X#1#{} multiplier per each",
+            "Gain {X:mult,C:white}X#1#{} multiplier per",
             "consecutive hand containing {C:attention}#3#{}",
             "Otherwise reset",
             "{C:inactive}(Currently {X:mult,C:white} X#2# {C:inactive} Mult)"
@@ -118,15 +118,30 @@ local loc_en = {
             "Poker hand changes after each {C:attention}discard{}"
         }
     },
-    j_moji_diamond = {
+    j_moji_diamonds = {
         name = "Pursue the Stars",
         text = {
             "{C:mult}+Difference{} Mult",
-            "per each {C:diamonds}#2#{} card in your deck",
+            "per {C:diamonds}#2#{} card in your deck",
             "exceeding {C:attention}#3#{}",
             "{C:inactive}(Currently {C:mult}+#1#{C:inactive} Mult)"
         }
     },
+    j_moji_hearts = {
+        name = "Hold the Sun",
+        text = {
+            "Once per round,",
+            "{C:attention}upgrade{} the played poker hand",
+            "if a {C:hearts}#1#{} card is played and scored"
+        }
+    },
+    j_moji_spades = {
+        name = "Salvage the World",
+        text = {
+            "{C:chips}+#1#{} Chips",
+            "per {C:spades}#2#{} card in your hand"
+        }
+    }
 }
 
 local loc_zh = {
@@ -237,12 +252,28 @@ local loc_zh = {
             "每次{C:attention}弃牌{}后牌型都会改变"
         }
     },
-    j_moji_diamond = {
+    j_moji_diamonds = {
         name = "逐星",
         text = {
-            "牌组中的{C:diamonds}#2#{}每比{C:attention}#3#{}张",
-            "多1张，获得{C:mult}+差值{}倍率",
+            "牌组中的{C:diamonds}#2#{}牌",
+            "每比{C:attention}#3#{}张多1张，",
+            "获得{C:mult}+差值{}倍率",
             "{C:inactive}（当前为{C:mult}+#1#{C:inactive}倍率）"
+        }
+    },
+    j_moji_hearts = {
+        name = "执日",
+        text = {
+            "每回合首次",
+            "打出{C:hearts}#1#{}牌并计分时，",
+            "{C:attention}升级{}出牌牌型"
+        }
+    },
+    j_moji_spades = {
+        name = "救世",
+        text = {
+            "手牌中的每张{C:spades}#2#{}牌",
+            "给予{C:chips}+#1#{}筹码"
         }
     },
 }
@@ -345,7 +376,7 @@ local jokers = {
         ability = {extra = {Xmult_add = 0.15}},
         rarity = 3,
         cost = 9,
-        unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
     j_well_laid_plans = {
         ability_name = "Well-Laid Plans",
@@ -355,10 +386,26 @@ local jokers = {
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_moji_diamond = {
+    j_moji_diamonds = {
         ability_name = "Pursue the Stars",
-        slug = "moji_diamond",
+        slug = "moji_diamonds",
         ability = {extra = {mult_add = 2, suit = 'Diamonds', diff_base = 13}},
+        rarity = 2,
+        cost = 6,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_moji_hearts = {
+        ability_name = "Hold the Sun",
+        slug = "moji_hearts",
+        ability = {extra = {suit = 'Hearts', trigger_hand = -1}},
+        rarity = 2,
+        cost = 6,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_moji_spades = {
+        ability_name = "Salvage the World",
+        slug = "moji_spades",
+        ability = {extra = {chips = 100, suit = 'Spades', trigger_cnt = 0}},
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
@@ -405,10 +452,10 @@ function well_laid_plans_choose(old_hand)
     return pseudorandom_element(_poker_hands, pseudoseed('well_laid_plans'))
 end
 
-function count_suit(suit)
+function count_suit(cards, suit)
     local count = 0
-    for k, v in pairs(G.playing_cards) do
-        if v.base.suit == suit and v.ability.effect ~= 'Stone Card' then
+    for k, v in pairs(cards) do
+        if v:is_suit(suit) then
             count = count + 1
         end
     end
@@ -493,8 +540,8 @@ function SMODS.INIT.MojiJoker()
     SMODS.Jokers.j_garbage_time.calculate = function(self, context)
         if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
             if G.GAME.current_round.hands_played > 1 then
-                local newMult = self.ability.x_mult - self.ability.extra.Xmult_sub
-                if newMult <= 1 then
+                local new_mult = self.ability.x_mult - self.ability.extra.Xmult_sub
+                if new_mult <= 1 then
                     G.E_MANAGER:add_event(Event({
                         func = function()
                             play_sound('tarot1')
@@ -516,7 +563,7 @@ function SMODS.INIT.MojiJoker()
                         colour = G.C.FILTER
                     }
                 else
-                    self.ability.x_mult = newMult
+                    self.ability.x_mult = new_mult
                     return {
                         message = localize{type='variable',key='a_xmult_minus',vars={self.ability.extra.Xmult_sub}},
                         colour = G.C.RED,
@@ -538,10 +585,10 @@ function SMODS.INIT.MojiJoker()
                 end
             end
             if hand_trigger > 0 then
-                local addMult = self.ability.extra.Xmult_add * hand_trigger
-                self.ability.x_mult = self.ability.x_mult + addMult
+                local add_mult = self.ability.extra.Xmult_add * hand_trigger
+                self.ability.x_mult = self.ability.x_mult + add_mult
                 return {
-                    message = localize{type='variable',key='a_xmult',vars={addMult}},
+                    message = localize{type='variable',key='a_xmult',vars={add_mult}},
                     colour = G.C.MULT,
                     card = self
                 }
@@ -564,11 +611,11 @@ function SMODS.INIT.MojiJoker()
     SMODS.Jokers.j_quantization.calculate = function(self, context)
         if context.before and not context.blueprint then
             if #context.scoring_hand >= self.ability.extra.min_cards then
-                local addMult = self.ability.extra.mult_add * #context.scoring_hand
-                self.ability.mult = self.ability.mult + addMult
+                local add_mult = self.ability.extra.mult_add * #context.scoring_hand
+                self.ability.mult = self.ability.mult + add_mult
                 return {
                     card = self,
-                    message = localize{type='variable',key='a_mult',vars={addMult}},
+                    message = localize{type='variable',key='a_mult',vars={add_mult}},
                 }
             else
                 if self.ability.mult > 0 then
@@ -627,8 +674,8 @@ function SMODS.INIT.MojiJoker()
 
     -- Calamity Star
     SMODS.Jokers.j_moji_star.calculate = function(self, context)
-        if context.setting_blind and not self.getting_sliced and not context.blueprint then
-            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+        if context.setting_blind then
+            if not (context.blueprint_card or self).getting_sliced and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
                 G.E_MANAGER:add_event(Event({
                     func = (function()
@@ -649,8 +696,8 @@ function SMODS.INIT.MojiJoker()
 
     -- Crescent Moon
     SMODS.Jokers.j_moji_moon.calculate = function(self, context)
-        if context.setting_blind and not self.getting_sliced and not context.blueprint then
-            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+        if context.setting_blind then
+            if not (context.blueprint_card or self).getting_sliced and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
                 G.E_MANAGER:add_event(Event({
                     func = (function()
@@ -671,8 +718,8 @@ function SMODS.INIT.MojiJoker()
 
     -- Solar Eclipse
     SMODS.Jokers.j_moji_sun.calculate = function(self, context)
-        if context.setting_blind and not self.getting_sliced and not context.blueprint then
-            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+        if context.setting_blind then
+            if not (context.blueprint_card or self).getting_sliced and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
                 G.E_MANAGER:add_event(Event({
                     func = (function()
@@ -693,8 +740,8 @@ function SMODS.INIT.MojiJoker()
 
     -- Doomed World
     SMODS.Jokers.j_moji_world.calculate = function(self, context)
-        if context.setting_blind and not self.getting_sliced and not context.blueprint then
-            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+        if context.setting_blind then
+            if not (context.blueprint_card or self).getting_sliced and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
                 G.E_MANAGER:add_event(Event({
                     func = (function()
@@ -734,10 +781,10 @@ function SMODS.INIT.MojiJoker()
                 end
             end
             if stones_created > 0 then
-                local addMult = self.ability.extra.Xmult_add * stones_created
-                self.ability.x_mult = self.ability.x_mult + addMult
+                local add_mult = self.ability.extra.Xmult_add * stones_created
+                self.ability.x_mult = self.ability.x_mult + add_mult
                 return {
-                    message = localize{type='variable',key='a_xmult',vars={addMult}},
+                    message = localize{type='variable',key='a_xmult',vars={add_mult}},
                     colour = G.C.MULT,
                     card = self
                 }
@@ -757,7 +804,7 @@ function SMODS.INIT.MojiJoker()
             end
         end
         if context.discard and not context.blueprint and context.other_card == context.full_hand[#context.full_hand] then
-            local new_hand = well_laid_plans_choose(context.hand)
+            local new_hand = well_laid_plans_choose(self.ability.extra.poker_hand)
             if new_hand then
                 self.ability.extra.poker_hand = new_hand
                 return {
@@ -769,9 +816,9 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Pursue the Stars
-    SMODS.Jokers.j_moji_diamond.calculate = function(self, context)
+    SMODS.Jokers.j_moji_diamonds.calculate = function(self, context)
         if SMODS.end_calculate_context(context) then
-            local diff = count_suit(self.ability.extra.suit) - self.ability.extra.diff_base
+            local diff = count_suit(G.playing_card, self.ability.extra.suit) - self.ability.extra.diff_base
             if diff > 0 then
                 return {
                     message = localize{type='variable',key='a_mult',vars={diff * diff}},
@@ -779,6 +826,55 @@ function SMODS.INIT.MojiJoker()
                     mult_mod = diff * diff
                 }
             end
+        end
+    end
+
+    -- Hold the Sun
+    SMODS.Jokers.j_moji_hearts.calculate = function(self, context)
+        if context.setting_blind and not self.getting_sliced and not context.blueprint then
+            self.ability.extra.trigger_hand = -1
+        end
+        if context.before then
+            if self.ability.extra.trigger_hand ~= -1 and G.GAME.current_round.hands_played > self.ability.extra.trigger_hand then return end
+            local has_hearts = false
+            for i = 1, #context.scoring_hand do
+                if context.scoring_hand[i]:is_suit(self.ability.extra.suit) and not context.scoring_hand[i].debuff then
+                    has_hearts = true
+                    break
+                end
+            end
+            if has_hearts then
+                self.ability.extra.trigger_hand = G.GAME.current_round.hands_played
+                return {
+                    card = self,
+                    level_up = true,
+                    message = localize('k_level_up_ex')
+                }
+            end
+        end
+    end
+
+    -- Salvage the World
+    SMODS.Jokers.j_moji_spades.calculate = function(self, context)
+        if context.before then
+            self.ability.extra.trigger_cnt = 0
+        end
+        if context.individual and not context.blueprint then
+            if context.cardarea == G.hand then
+                if context.other_card:is_suit(self.ability.extra.suit) and not context.other_card.debuff then
+                    self.ability.extra.trigger_cnt = self.ability.extra.trigger_cnt + 1
+                    return {
+                        card = context.other_card
+                    }
+                end
+            end
+        end
+        if SMODS.end_calculate_context(context) then
+            return {
+                message = localize{type='variable',key='a_chips',vars={self.ability.extra.chips * self.ability.extra.trigger_cnt}},
+                colour = G.C.CHIPS,
+                chip_mod = self.ability.extra.chips * self.ability.extra.trigger_cnt
+            }
         end
     end
 end
@@ -876,11 +972,20 @@ function Card.generate_UIBox_ability_table(self)
                 localize(self.ability.extra.poker_hand, 'poker_hands')
             }
         elseif self.ability.name == 'Pursue the Stars' then
-            local diff = G.playing_cards and count_suit(self.ability.extra.suit) - self.ability.extra.diff_base or 0
+            local diff = G.playing_cards and (count_suit(G.playing_cards, self.ability.extra.suit) - self.ability.extra.diff_base) or 0
             loc_vars = {
                 diff > 0 and diff * diff or 0,
                 localize(self.ability.extra.suit, 'suits_singular'),
                 self.ability.extra.diff_base
+            }
+        elseif self.ability.name == 'Hold the Sun' then
+            loc_vars = {
+                localize(self.ability.extra.suit, 'suits_singular')
+            }
+        elseif self.ability.name == 'Salvage the World' then
+            loc_vars = {
+                self.ability.extra.chips,
+                localize(self.ability.extra.suit, 'suits_singular')
             }
         else
             customJoker = false

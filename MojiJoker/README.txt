@@ -58,5 +58,9 @@ X3倍率
 捧月 Embrace the Moon
 
 执日 Hold the Sun
+罕见 6
+每回合首次打出红桃牌并计分时，升级出牌牌型
 
 救世 Salvage the World
+罕见 6
+手牌中的每张黑桃牌给予+100筹码
