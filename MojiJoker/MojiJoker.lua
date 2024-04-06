@@ -8,7 +8,7 @@
 ------------MOD CODE -------------------------
 
 local MOD_ID = "MojiJoker"
-local MOD_VERSION = "20240406.2"
+local MOD_VERSION = "20240406.3"
 
 local loc_en = {
     j_moji_color_out_of_space = {
@@ -514,8 +514,8 @@ local jokers = {
         ability_name = "Binoculars",
         slug = "moji_binoculars",
         ability = {extra = {repeat_times = 1}},
-        rarity = 2,
-        cost = 6,
+        rarity = 1,
+        cost = 5,
         unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
     },
     j_moji_tax_collector = {
@@ -530,7 +530,7 @@ local jokers = {
         ability_name = "Ancient Pact",
         slug = "moji_ancient_pact",
         ability = {extra = {percent = 100, legendary_chance = 0.003}},
-        rarity = 2,
+        rarity = 3,
         cost = 8,
         unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
     }
@@ -1358,7 +1358,7 @@ function Card.generate_UIBox_ability_table(self)
             local diff = G.playing_cards and (count_suit(G.playing_cards, self.ability.extra.suit) - self.ability.extra.diff_base) or 0
             loc_vars = {
                 self.ability.extra.mult,
-                diff * self.ability.extra.mult,
+                (diff > 0 and diff * self.ability.extra.mult or 0),
                 localize(self.ability.extra.suit, 'suits_singular'),
                 self.ability.extra.diff_base
             }
