@@ -8,13 +8,13 @@
 ------------MOD CODE -------------------------
 
 local MOD_ID = "MojiJoker"
-local MOD_VERSION = "20240406.5"
+local MOD_VERSION = "20240406.6"
 
 local loc_en = {
     j_moji_color_out_of_space = {
         name = "Color Out of Space",
         text = {
-            "Gain {X:mult,C:white}X#1#{} multiplier per",
+            "Gains {X:mult,C:white}X#1#{} multiplier per",
             "consecutive hand containing {C:attention}#3#{}",
             "Otherwise reset",
             "{C:inactive}(Currently {X:mult,C:white} X#2# {C:inactive} Mult)"
@@ -32,7 +32,7 @@ local loc_en = {
     j_moji_new_order = {
         name = "The New Order",
         text = {
-            "{X:mult,C:white}X#1#{} Mult when {C:attention}#4#{}",
+            "Gains {X:mult,C:white}X#1#{} Mult when {C:attention}#4#{}",
             "is played and scored",
             "Rank decreases by {C:attention}1{} after each trigger",
             "{C:inactive}(A, K, Q, ..., 2, A)",
@@ -46,7 +46,7 @@ local loc_en = {
         text = {
             "If at least {C:attention}#3#{} scoring cards",
             "are played in one hand,",
-            "{C:mult}+#1#{} Mult per scoring card",
+            "gains {C:mult}+#1#{} Mult per scoring card",
             "Otherwise reset",
             "{C:inactive}(Currently {C:mult}+#2#{C:inactive} Mult)"
         }
@@ -205,6 +205,46 @@ local loc_en = {
             "{X:mult,C:white}X#2#{} Mult per",
             "unique {C:dark_edition}edition{}"
         }
+    },
+    j_moji_rebate = {
+        name = "Rebate",
+        text = {
+            "Earn {C:money}$#1#{} on adding a card",
+            "Lose {C:money}$#2#{} on selling a card"
+        }
+    },
+    j_moji_free_refill = {
+        name = "Free Refill",
+        text = {
+            "When {C:attention}Blind{} is selected,",
+            "create random Jokers",
+            "until there is no more room",
+            "Lose {C:money}$#1#{} on selling a card"
+        }
+    },
+    j_moji_safety_net = {
+        name = "Saftey Net",
+        text = {
+            "Gains {C:chips}+#1#{} Chips",
+            "per remaining {C:red}discard{}",
+            "at the end of the round"
+        }
+    },
+    j_moji_luxury_tax = {
+        name = "Luxury Tax",
+        text = {
+            "{C:blue}+#1#{} hand size",
+            "{C:red}-#3#{} hand size for",
+            "every {C:money}$#2#{} you have",
+            "{C:inactive}(Currently #4#{C:inactive}"
+        }
+    },
+    j_moji_vacant_seat = {
+        name = "Vacant Seat",
+        text = {
+            "{C:red}-#1#{} hand size",
+            "{C:mult}+#2#{} Mult per hand size"
+        }
     }
 }
 
@@ -313,7 +353,7 @@ local loc_zh = {
         text = {
             "完整牌组中的{C:diamonds}#3#{}牌",
             "每比{C:attention}#4#{}张多1张，",
-            "获得{C:mult}+#1#{}倍率",
+            "提供{C:mult}+#1#{}倍率",
             "{C:inactive}（按有效花色计算）",
             "{C:inactive}（当前为{C:mult}+#2#{C:inactive}倍率）"
         }
@@ -386,7 +426,7 @@ local loc_zh = {
     j_moji_now_printing = {
         name = "印刷中",
         text = {
-            "下{C:attention}#1#{}次选择{C:attention}盲注{}时，",
+            "下{C:attention}#1#{}次选择{C:attention}盲注{}后，",
             "给一张随机小丑牌添加",
             "{C:dark_edition}闪箔{}、{C:dark_edition}镭射{}或{C:dark_edition}多彩{}版本",
             "{C:inactive}（不会添加给印刷中）"
@@ -399,6 +439,46 @@ local loc_zh = {
             "提供{X:mult,C:white}X#1#{}倍率",
             "每种不同的{C:dark_edition}版本{}",
             "提供{X:mult,C:white}X#2#{}倍率"
+        }
+    },
+    j_moji_rebate = {
+        name = "回扣",
+        text = {
+            "获得牌时获得{C:money}$#1#{}",
+            "出售牌时失去{C:money}$#2#{}"
+        }
+    },
+    j_moji_free_refill = {
+        name = "免费续杯",
+        text = {
+            "选择{C:attention}盲注{}后，",
+            "用随机小丑牌填满槽位",
+            "出售牌时失去{C:money}$#1#{}"
+        }
+    },
+    j_moji_safety_net = {
+        name = "安全网",
+        text = {
+            "回合结束时，",
+            "每有1次未使用的{C:red}弃牌{}次数",
+            "获得{C:chips}+#1#{}筹码",
+            "{C:inactive}（当前为{C:chips}+#2#{C:inactive}筹码）"
+        }
+    },
+    j_moji_luxury_tax = {
+        name = "奢侈税",
+        text = {
+            "手牌上限{C:blue}+#1#",
+            "每有{C:money}$#2#{}，手牌上限{C:red}-#3#{}",
+            "{C:inactive}（当前为{C:attention}#4#{C:inactive}）"
+        }
+    },
+    j_moji_vacant_seat = {
+        name = "虚位以待",
+        text = {
+            "手牌上限{C:red}-#1#",
+            "每有1手牌上限，",
+            "提供{C:mult}+#2#{}倍率"
         }
     }
 }
@@ -591,6 +671,46 @@ local jokers = {
         ability = {extra = {Xmult = 1.5, unique_Xmult = 1.5, seen = {}, final_xmult = 1}},
         rarity = 3,
         cost = 9,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_moji_rebate = {
+        ability_name = "Rebate",
+        slug = "moji_rebate",
+        ability = {extra = {dollars = 4, dollars_lose = 3}},
+        rarity = 1,
+        cost = 4,
+        unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
+    },
+    j_moji_free_refill = {
+        ability_name = "Free Refill",
+        slug = "moji_free_refill",
+        ability = {extra = {dollars_lose = 4}},
+        rarity = 2,
+        cost = 6,
+        unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
+    },
+    j_moji_safety_net = {
+        ability_name = "Safety Net",
+        slug = "moji_safety_net",
+        ability = {extra = {chips = 20, chips_add = 12}},
+        rarity = 1,
+        cost = 5,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_moji_luxury_tax = {
+        ability_name = "Luxury Tax",
+        slug = "moji_luxury_tax",
+        ability = {extra = {hand_size = 3, per = 20, hand_size_sub = 1, min_hand_size = -2, cur_hand_size = 0}},
+        rarity = 1,
+        cost = 5,
+        unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
+    },
+    j_moji_vacant_seat = {
+        ability_name = "Vacant Seat",
+        slug = "moji_vacant_seat",
+        ability = {extra = {hand_size = -2, mult = 15}},
+        rarity = 2,
+        cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     }
 }
@@ -1240,7 +1360,7 @@ function SMODS.INIT.MojiJoker()
                         self:juice_up(0.3, 0.4)
                         self.states.drag.is = true
                         self.children.center.pinch.x = true
-                        G.E_MANAGER:add_event(Event({hand_trigger = 'after', delay = 0.3, blockable = false,
+                        G.E_MANAGER:add_event(Event({hand_trigger = 'after', delay = 1.0, blockable = false,
                             func = function()
                                     G.jokers:remove_card(self)
                                     self:remove()
@@ -1288,18 +1408,20 @@ function SMODS.INIT.MojiJoker()
             if self.ability.extra.final_xmult == 0 then
                 local count = 0
                 for i = 1, #G.jokers.cards do
-                    if G.jokers.cards[i].edition.foil and not self.ability.extra.seen.foil then
-                        self.ability.extra.seen.foil = true
-                        count = count + 1
-                    elseif G.jokers.cards[i].edition.holo and not self.ability.extra.seen.holo then
-                        self.ability.extra.seen.holo = true
-                        count = count + 1
-                    elseif G.jokers.cards[i].edition.polychrome and not self.ability.extra.seen.polychrome then
-                        self.ability.extra.seen.polychrome = true
-                        count = count + 1
-                    elseif G.jokers.cards[i].edition.negative and not self.ability.extra.seen.negative then
-                        self.ability.extra.seen.negative = true
-                        count = count + 1
+                    if G.jokers.cards[i].edition then
+                        if G.jokers.cards[i].edition.foil and not self.ability.extra.seen.foil then
+                            self.ability.extra.seen.foil = true
+                            count = count + 1
+                        elseif G.jokers.cards[i].edition.holo and not self.ability.extra.seen.holo then
+                            self.ability.extra.seen.holo = true
+                            count = count + 1
+                        elseif G.jokers.cards[i].edition.polychrome and not self.ability.extra.seen.polychrome then
+                            self.ability.extra.seen.polychrome = true
+                            count = count + 1
+                        elseif G.jokers.cards[i].edition.negative and not self.ability.extra.seen.negative then
+                            self.ability.extra.seen.negative = true
+                            count = count + 1
+                        end
                     end
                 end
                 self.ability.extra.final_xmult = math.pow(self.ability.extra.unique_Xmult, count)
@@ -1316,6 +1438,108 @@ function SMODS.INIT.MojiJoker()
 
     SMODS.Jokers.j_moji_stamp_collection.loc_def = function(card)
         return {card.ability.extra.Xmult, card.ability.extra.unique_Xmult}
+    end
+
+    -- Rebate
+    SMODS.Jokers.j_moji_rebate.calculate = function(self, context)
+        if context.selling_card and not context.blueprint then
+            G.E_MANAGER:add_event(Event({hand_trigger = 'after', delay = 0.3, func = function()
+                ease_dollars(-self.ability.extra.dollars_lose)
+                return true end}))
+        end
+    end
+
+    SMODS.Jokers.j_moji_rebate.loc_def = function(card)
+        return {card.ability.extra.dollars, card.ability.extra.dollars_lose}
+    end
+
+    -- Free Refill
+    SMODS.Jokers.j_moji_free_refill.calculate = function(self, context)
+        if context.setting_blind and not context.blueprint and not self.getting_sliced then
+            local jokers_to_create = math.max(0, G.jokers.config.card_limit - (#G.jokers.cards + G.GAME.joker_buffer))
+            if jokers_to_create == 0 then return end
+            G.GAME.joker_buffer = G.GAME.joker_buffer + jokers_to_create
+            G.E_MANAGER:add_event(Event({
+                func = function() 
+                    for i = 1, jokers_to_create do
+                        local card = create_card('Joker', G.jokers, nil, 0, nil, nil, nil, 'rif')
+                        card:add_to_deck()
+                        G.jokers:emplace(card)
+                        card:start_materialize()
+                        G.GAME.joker_buffer = 0
+                    end
+                    return true
+                end}))   
+                card_eval_status_text(self, 'extra', nil, nil, nil, {message = localize('k_plus_joker'), colour = G.C.BLUE}) 
+        end
+        if context.selling_card and not context.blueprint then
+            G.E_MANAGER:add_event(Event({hand_trigger = 'after', delay = 0.3, func = function()
+                ease_dollars(-self.ability.extra.dollars_lose)
+                return true end}))
+        end
+    end
+
+    SMODS.Jokers.j_moji_free_refill.loc_def = function(card)
+        return {card.ability.extra.dollars_lose}
+    end
+
+    -- Safety Net
+    SMODS.Jokers.j_moji_safety_net.calculate = function(self, context)
+        if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
+            local add_chips = self.ability.extra.chips_add * G.GAME.current_round.discards_left
+            if add_chips > 0 then
+                self.ability.extra.chips = self.ability.extra.chips + add_chips
+                return {
+                    message = localize{type='variable',key='a_chips',vars={add_chips}},
+                    colour = G.C.CHIPS,
+                    card = self
+                }
+            end
+        end
+
+        if SMODS.end_calculate_context(context) then
+            return {
+                message = localize{type='variable',key='a_chips',vars={self.ability.extra.chips}},
+                chip_mod = self.ability.extra.chips, 
+                colour = G.C.CHIPS
+            }
+        end
+    end
+
+    SMODS.Jokers.j_moji_safety_net.loc_def = function(card)
+        return {card.ability.extra.chips_add, card.ability.extra.chips}
+    end
+
+    -- Luxury Tax
+    SMODS.Jokers.j_moji_luxury_tax.calculate = function(self, context)
+        if context.setting_blind and not context.blueprint and not self.getting_sliced then
+            self.ability.extra.cur_hand_size = math.max(self.ability.extra.hand_size - self.ability.extra.hand_size_sub * (G.GAME.dollars > 0 and math.floor(G.GAME.dollars / self.ability.extra.per) or 0), self.ability.extra.min_hand_size)
+            G.hand:change_size(self.ability.extra.cur_hand_size)
+        end
+
+        if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
+            G.hand:change_size(-self.ability.extra.cur_hand_size)
+        end
+    end
+
+    SMODS.Jokers.j_moji_luxury_tax.loc_def = function(card)
+        local cur_hand_size = math.max(card.ability.extra.hand_size - card.ability.extra.hand_size_sub * (G.GAME.dollars > 0 and math.floor(G.GAME.dollars / card.ability.extra.per) or 0), card.ability.extra.min_hand_size)
+        return {card.ability.extra.hand_size, card.ability.extra.per, card.ability.extra.hand_size_sub, (cur_hand_size >= 0 and string.format('+%d', cur_hand_size) or string.format('%d', cur_hand_size))}
+    end
+
+    -- Vacant Seat
+    SMODS.Jokers.j_moji_vacant_seat.calculate = function(self, context)
+        if SMODS.end_calculate_context(context) then
+            return {
+                message = localize{type='variable',key='a_mult',vars={G.hand.config.card_limit * self.ability.extra.mult}},
+                colour = G.C.MULT,
+                mult_mod = G.hand.config.card_limit * self.ability.extra.mult
+            }
+        end
+    end
+
+    SMODS.Jokers.j_moji_vacant_seat.loc_def = function(card)
+        return {-card.ability.extra.hand_size, card.ability.extra.mult}
     end
 end
 
@@ -1346,6 +1570,7 @@ end
 local Card_add_to_deck_ref = Card.add_to_deck
 function Card:add_to_deck(from_debuff)
     if not self.added_to_deck then
+        self.added_to_deck = true
         if self.ability.name == 'Satellite Payment' then
             self.ability.extra.planets_used = count_used_consumeables('Planet')
             G.E_MANAGER:add_event(Event({func = function()
@@ -1353,7 +1578,17 @@ function Card:add_to_deck(from_debuff)
                     if v.set_cost then v:set_cost() end
                 end
                 return true end }))
-            self.added_to_deck = true
+        elseif self.ability.name == 'Vacant Seat' then
+            G.hand:change_size(self.ability.extra.hand_size)
+        else
+            self.added_to_deck = false
+        end
+        for i = 1, #G.jokers.cards do
+            if G.jokers.cards[i].ability.name == 'Rebate' then
+                G.E_MANAGER:add_event(Event({hand_trigger = 'after', delay = 0.3, func = function()
+                    ease_dollars(G.jokers.cards[i].ability.extra.dollars)
+                    return true end}))
+            end
         end
     end
     Card_add_to_deck_ref(self, from_debuff)
@@ -1363,11 +1598,17 @@ local Card_remove_from_deck_ref = Card.remove_from_deck
 function Card:remove_from_deck(from_debuff)
     if self.added_to_deck then
         self.added_to_deck = false
-        G.E_MANAGER:add_event(Event({func = function()
-            for k, v in pairs(G.I.CARD) do
-                if v.set_cost then v:set_cost() end
-            end
-            return true end }))
+        if self.ability.name == 'Satellite Payment' then
+            G.E_MANAGER:add_event(Event({func = function()
+                for k, v in pairs(G.I.CARD) do
+                    if v.set_cost then v:set_cost() end
+                end
+                return true end }))
+        elseif self.ability.name == 'Vacant Seat' then
+            G.hand:change_size(-self.ability.extra.hand_size)
+        else
+            self.added_to_deck = true
+        end
     end
     Card_remove_from_deck_ref(self, from_debuff)
 end
