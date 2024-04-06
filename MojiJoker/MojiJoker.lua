@@ -8,7 +8,7 @@
 ------------MOD CODE -------------------------
 
 local MOD_ID = "MojiJoker"
-local MOD_VERSION = "20240406.3"
+local MOD_VERSION = "20240406.4"
 
 local loc_en = {
     j_moji_color_out_of_space = {
@@ -349,7 +349,7 @@ local loc_zh = {
         text = {
             "回合结束时，",
             "每张普通/罕见/稀有/传奇小丑牌",
-            "分别提供{C:blue}$#1#{}/{C:green}$#2#{}/{C:red}$#3#{}/{C:legendary}$#4#{}"
+            "分别给予{C:blue}$#1#{}/{C:green}$#2#{}/{C:red}$#3#{}/{C:legendary}$#4#{}"
         }
     },
     j_moji_ancient_pact = {
@@ -457,7 +457,7 @@ local jokers = {
     j_moji_sisyphus = {
         ability_name = "Sisyphus",
         slug = "moji_sisyphus",
-        ability = {extra = {Xmult_add = 0.1}},
+        ability = {extra = {Xmult_add = 0.15}},
         rarity = 3,
         cost = 9,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
@@ -465,7 +465,7 @@ local jokers = {
     j_moji_pursue_the_stars = {
         ability_name = "Pursue the Stars",
         slug = "moji_pursue_the_stars",
-        ability = {extra = {mult = 4, suit = 'Diamonds', diff_base = 13}},
+        ability = {extra = {mult = 5, suit = 'Diamonds', diff_base = 13}},
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
@@ -646,6 +646,10 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
+    SMODS.Jokers.j_moji_color_out_of_space.loc_def = function(card)
+        return {card.ability.extra.Xmult_add, card.ability.x_mult, localize(card.ability.extra.type, 'poker_hands')}
+    end
+
     -- Garbage Time
     SMODS.Jokers.j_moji_garbage_time.calculate = function(self, context)
         if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
@@ -684,6 +688,10 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
+    SMODS.Jokers.j_moji_garbage_time.loc_def = function(card)
+        return {card.ability.extra.Xmult_sub, card.ability.x_mult}
+    end
+
     -- The New Order
     SMODS.Jokers.j_moji_new_order.calculate = function(self, context)
         if context.before and not context.blueprint then
@@ -715,6 +723,10 @@ function SMODS.INIT.MojiJoker()
                 end
             end
         end
+    end
+
+    SMODS.Jokers.j_moji_new_order.loc_def = function(card)
+        return {card.ability.extra.Xmult_add, card.ability.extra.Xmult_sub, card.ability.x_mult, rank_to_str[card.ability.extra.rank]}
     end
 
     -- Quantization
@@ -749,6 +761,10 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
+    SMODS.Jokers.j_moji_quantization.loc_def = function(card)
+        return {card.ability.extra.mult_add, card.ability.mult, card.ability.extra.min_cards}
+    end
+
     -- Satellite Payment
     SMODS.Jokers.j_moji_satellite_payment.calculate = function(self, context)
         if context.using_consumeable and not context.blueprint and context.consumeable.ability.set == 'Planet' then
@@ -759,6 +775,11 @@ function SMODS.INIT.MojiJoker()
                 end
                 return true end }))
         end
+    end
+
+    SMODS.Jokers.j_moji_satellite_payment.loc_def = function(card)
+        card.ability.extra.planets_used = count_used_planets()
+        return {card.ability.extra.price_sub, card.ability.extra.planets_used * card.ability.extra.price_sub}
     end
 
     -- Transcendence
@@ -783,6 +804,10 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
+    SMODS.Jokers.j_moji_transcendence.loc_def = function(card)
+        return {}
+    end
+
     -- Calamity Star
     SMODS.Jokers.j_moji_calamity_star.calculate = function(self, context)
         if context.setting_blind then
@@ -803,6 +828,10 @@ function SMODS.INIT.MojiJoker()
                     end)}))
             end
         end
+    end
+
+    SMODS.Jokers.j_moji_calamity_star.loc_def = function(card)
+        return {}
     end
 
     -- Crescent Moon
@@ -827,6 +856,10 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
+    SMODS.Jokers.j_moji_crescent_moon.loc_def = function(card)
+        return {}
+    end
+
     -- Solar Eclipse
     SMODS.Jokers.j_moji_solar_eclipse.calculate = function(self, context)
         if context.setting_blind then
@@ -849,6 +882,10 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
+    SMODS.Jokers.j_moji_solar_eclipse.loc_def = function(card)
+        return {}
+    end
+
     -- Doomed World
     SMODS.Jokers.j_moji_doomed_world.calculate = function(self, context)
         if context.setting_blind then
@@ -869,6 +906,10 @@ function SMODS.INIT.MojiJoker()
                     end)}))
             end
         end
+    end
+
+    SMODS.Jokers.j_moji_doomed_world.loc_def = function(card)
+        return {}
     end
     
     -- Sisyphus
@@ -903,6 +944,10 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
+    SMODS.Jokers.j_moji_sisyphus.loc_def = function(card)
+        return {card.ability.extra.Xmult_add, card.ability.x_mult}
+    end
+
     -- Pursue the Stars
     SMODS.Jokers.j_moji_pursue_the_stars.calculate = function(self, context)
         if SMODS.end_calculate_context(context) then
@@ -917,6 +962,15 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
+    SMODS.Jokers.j_moji_pursue_the_stars.set_ability = function(self, center, initial, delay_sprites)
+        self.ability.extra.diff_base = G.GAME.starting_deck_size / 4 or 13
+    end
+
+    SMODS.Jokers.j_moji_pursue_the_stars.loc_def = function(card)
+        local diff = G.playing_cards and (count_suit(G.playing_cards, card.ability.extra.suit) - card.ability.extra.diff_base) or 0
+        return {card.ability.extra.mult, (diff > 0 and diff * card.ability.extra.mult or 0), localize(card.ability.extra.suit, 'suits_singular'), card.ability.extra.diff_base}
+    end
+
     -- Embrace the Moon
     SMODS.Jokers.j_moji_embrace_the_moon.calculate = function(self, context)
         if context.setting_blind and not context.blueprint then
@@ -926,6 +980,10 @@ function SMODS.INIT.MojiJoker()
         if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
             self.ability.extra.trigger_cnt = count_suit(G.deck.cards, self.ability.extra.suit)
         end
+    end
+
+    SMODS.Jokers.j_moji_embrace_the_moon.loc_def = function(card)
+        return {card.ability.extra.dollars, localize(card.ability.extra.suit, 'suits_plural'), card.ability.extra.per}
     end
 
     -- Hold the Sun
@@ -952,6 +1010,10 @@ function SMODS.INIT.MojiJoker()
                 }
             end
         end
+    end
+
+    SMODS.Jokers.j_moji_hold_the_sun.loc_def = function(card)
+        return {localize(card.ability.extra.suit, 'suits_singular')}
     end
 
     -- Salvage the World
@@ -982,6 +1044,10 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
+    SMODS.Jokers.j_moji_salvage_the_world.loc_def = function(card)
+        return {card.ability.extra.chips, localize(card.ability.extra.suit, 'suits_singular')}
+    end
+
     -- Well-Laid Plans
     SMODS.Jokers.j_moji_well_laid_plans.calculate = function(self, context)
         if context.before then
@@ -1004,6 +1070,14 @@ function SMODS.INIT.MojiJoker()
                 }
             end
         end
+    end
+
+    SMODS.Jokers.j_moji_well_laid_plans.set_ability = function(self, center, initial, delay_sprites)
+        self.ability.extra.poker_hand = well_laid_plans_choose(nil)
+    end
+
+    SMODS.Jokers.j_moji_well_laid_plans.loc_def = function(card)
+        return {localize(card.ability.extra.poker_hand, 'poker_hands')}
     end
 
     -- Best-of-Three
@@ -1033,11 +1107,24 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
+    SMODS.Jokers.j_moji_best_of_three.loc_def = function(card)
+        return {card.ability.extra.per}
+    end
+
     -- Binoculars
+    SMODS.Jokers.j_moji_binoculars.loc_def = function(card)
+        return {card.ability.extra.repeat_times}
+    end
     
     -- Tax Collector
+    SMODS.Jokers.j_moji_tax_collector.loc_def = function(card)
+        return {card.ability.extra.dollars, card.ability.extra.dollars * 2, card.ability.extra.dollars * 3, card.ability.extra.dollars * 4}
+    end
     
     -- Ancient Pact
+    SMODS.Jokers.j_moji_ancient_pact.loc_def = function(card)
+        return {card.ability.extra.percent}
+    end
 end
 
 function Card:set_cost()
@@ -1091,17 +1178,6 @@ function Card:remove_from_deck(from_debuff)
             return true end }))
     end
     Card_remove_from_deck_ref(self, from_debuff)
-end
-
-local Card_set_ability_ref = Card.set_ability
-function Card:set_ability(center, initial, delay_sprites)
-    Card_set_ability_ref(self, center, initial, delay_sprites)
-    if self.ability.name == 'Well-Laid Plans' then
-        self.ability.extra.poker_hand = well_laid_plans_choose(nil)
-    end
-    if self.ability.name == 'Pursue the Stars' then
-        self.ability.extra.diff_base = G.GAME.starting_deck_size / 4 or 13
-    end
 end
 
 local Card_calculate_dollar_bonus_ref = Card.calculate_dollar_bonus
@@ -1301,134 +1377,6 @@ function poll_edition(_key, _mod, _no_neg, _guaranteed)
         return {foil = true}
     end
     return nil
-end
-
--- Copied and modifed from LushMod
-local generate_UIBox_ability_tableref = Card.generate_UIBox_ability_table
-function Card.generate_UIBox_ability_table(self)
-    local card_type, hide_desc = self.ability.set or "None", nil
-    local loc_vars = nil
-    local main_start, main_end = nil, nil
-    local no_badge = nil
-
-    if self.config.center.unlocked == false and not self.bypass_lock then
-    elseif card_type == 'Undiscovered' and not self.bypass_discovery_ui then
-    elseif self.debuff then
-    elseif card_type == 'Default' or card_type == 'Enhanced' then
-    elseif self.ability.set == 'Joker' then
-        local customJoker = true
-        if self.ability.name == 'Color Out of Space' then
-            loc_vars = {
-                self.ability.extra.Xmult_add,
-                self.ability.x_mult,
-                localize(self.ability.extra.type, 'poker_hands')
-            }
-        elseif self.ability.name == 'Garbage Time' then
-            loc_vars = {
-                self.ability.extra.Xmult_sub,
-                self.ability.x_mult
-            }
-        elseif self.ability.name == 'The New Order' then
-            loc_vars = {
-                self.ability.extra.Xmult_add,
-                self.ability.extra.Xmult_sub,
-                self.ability.x_mult,
-                rank_to_str[self.ability.extra.rank]
-            }
-        elseif self.ability.name == 'Quantization' then
-            loc_vars = {
-                self.ability.extra.mult_add,
-                self.ability.mult,
-                self.ability.extra.min_cards
-            }
-        elseif self.ability.name == 'Satellite Payment' then
-            self.ability.extra.planets_used = count_used_planets()
-            loc_vars = {
-                self.ability.extra.price_sub,
-                self.ability.extra.planets_used * self.ability.extra.price_sub
-            }
-        elseif self.ability.name == 'Transcendence' or self.ability.name == 'Calamity Star' or self.ability.name == 'Crescent Moon' or self.ability.name == 'Solar Eclipse' or self.ability.name == 'Doomed World' then
-            loc_vars = {}
-        elseif self.ability.name == 'Sisyphus' then
-            loc_vars = {
-                self.ability.extra.Xmult_add,
-                self.ability.x_mult
-            }
-        elseif self.ability.name == 'Pursue the Stars' then
-            local diff = G.playing_cards and (count_suit(G.playing_cards, self.ability.extra.suit) - self.ability.extra.diff_base) or 0
-            loc_vars = {
-                self.ability.extra.mult,
-                (diff > 0 and diff * self.ability.extra.mult or 0),
-                localize(self.ability.extra.suit, 'suits_singular'),
-                self.ability.extra.diff_base
-            }
-        elseif self.ability.name == 'Hold the Sun' then
-            loc_vars = {localize(self.ability.extra.suit, 'suits_singular')}
-        elseif self.ability.name == 'Salvage the World' then
-            loc_vars = {
-                self.ability.extra.chips,
-                localize(self.ability.extra.suit, 'suits_singular')
-            }
-        elseif self.ability.name == 'Embrace the Moon' then
-            loc_vars = {
-                self.ability.extra.dollars,
-                localize(self.ability.extra.suit, 'suits_singular'),
-                self.ability.extra.per
-            }
-        elseif self.ability.name == 'Well-Laid Plans' then
-            loc_vars = {localize(self.ability.extra.poker_hand, 'poker_hands')}
-        elseif self.ability.name == 'Best-of-Three' then
-            loc_vars = {self.ability.extra.per}
-        elseif self.ability.name == 'Binoculars' then
-            loc_vars = {self.ability.extra.repeat_times}
-        elseif self.ability.name == 'Tax Collector' then
-            loc_vars = {
-                self.ability.extra.dollars,
-                self.ability.extra.dollars * 2,
-                self.ability.extra.dollars * 3,
-                self.ability.extra.dollars * 4
-            }
-        elseif self.ability.name == 'Ancient Pact' then
-            loc_vars = {self.ability.extra.percent}
-        else
-            customJoker = false
-        end
-
-        if customJoker then
-            local badges = {}
-            if (card_type ~= 'Locked' and card_type ~= 'Undiscovered' and card_type ~= 'Default') or self.debuff then
-                badges.card_type = card_type
-            end
-            if self.ability.set == 'Joker' and self.bypass_discovery_ui and (not no_badge) then
-                badges.force_rarity = true
-            end
-            if self.edition then
-                if self.edition.type == 'negative' and self.ability.consumeable then
-                    badges[#badges + 1] = 'negative_consumable'
-                else
-                    badges[#badges + 1] = (self.edition.type == 'holo' and 'holographic' or self.edition.type)
-                end
-            end
-            if self.seal then
-                badges[#badges + 1] = string.lower(self.seal) .. '_seal'
-            end
-            if self.ability.eternal then
-                badges[#badges + 1] = 'eternal'
-            end
-            if self.pinned then
-                badges[#badges + 1] = 'pinned_left'
-            end
-
-            if self.sticker then
-                loc_vars = loc_vars or {};
-                loc_vars.sticker = self.sticker
-            end
-
-            return generate_card_ui(self.config.center, nil, loc_vars, card_type, badges, hide_desc, main_start,
-                main_end)
-        end
-    end
-    return generate_UIBox_ability_tableref(self)
 end
 
 ----------------------------------------------
