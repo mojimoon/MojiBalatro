@@ -8,7 +8,7 @@
 ------------MOD CODE -------------------------
 
 local MOD_ID = "MojiJoker"
-local MOD_VERSION = "20240406.4"
+local MOD_VERSION = "20240406.5"
 
 local loc_en = {
     j_moji_color_out_of_space = {
@@ -128,7 +128,8 @@ local loc_en = {
             "for every {C:attention}#3#{} {C:clubs}#2#{} card",
             "in the remaining deck",
             "at the end of the round",
-            "{C:inactive}(Effective suit is used)"
+            "{C:inactive}(Effective suit is used)",
+            "{C:inactive}(Currently {C:money}$#4#{C:inactive})"
         }
     },
     j_moji_hold_the_sun = {
@@ -174,15 +175,35 @@ local loc_en = {
         text = {
             "Earn {C:blue}$#1#{}/{C:green}$#2#{}/{C:red}$#3#{}/{C:legendary}$#4#{}",
             "for each Joker based on its rarity",
-            "at the end of the round"
+            "at the end of the round",
+            "{C:inactive}(Currently {C:money}$#5#{C:inactive})"
         }
     },
-    j_moji_ancient_pact = {
-        name = "Ancient Pact",
+    j_moji_rocket_test = {
+        name = "Rocket Test",
         text = {
-            "{C:green}Uncommon{}, {C:red}Rare{} Jokers and {C:blue}Edition{}",
-            "are {C:attention}#1#%{} more likely to appear",
-            -- "{C:legendary}Legendary{} Jokers can appear naturally"
+            "Each enabled {C:attention}Mod{}",
+            "gives {X:mult,C:white}X#1#{} Mult",
+            "{C:inactive}(Currently {X:mult,C:white} X#2# {C:inactive} Mult)"
+        }
+    },
+    j_moji_now_printing = {
+        name = "Now Printing",
+        text = {
+            "Add {C:dark_edition}Foil{}, {C:dark_edition}Holographic{}, or",
+            "{C:dark_edition}Polychrome{} edition to a random Joker",
+            "for the next {C:attention}#1#{} times",
+            "a {C:attention}Blind{} is selected",
+            "{C:inactive}(Now Printing will be excluded)"
+        }
+    },
+    j_moji_stamp_collection = {
+        name = "Stamp Collection",
+        text = {
+            "{X:mult,C:white}X#1#{} Mult per",
+            "Joker with a {C:dark_edition}edition{}",
+            "{X:mult,C:white}X#2#{} Mult per",
+            "unique {C:dark_edition}edition{}"
         }
     }
 }
@@ -303,7 +324,8 @@ local loc_zh = {
             "回合结束时，剩余牌组中",
             "每有{C:attention}#3#{}张{C:clubs}#2#{}牌，",
             "获得{C:money}$#1#{}",
-            "{C:inactive}（按有效花色计算）"
+            "{C:inactive}（按有效花色计算）",
+            "{C:inactive}（当前为{C:money}$#4#{C:inactive}）"
         }
     },
     j_moji_hold_the_sun = {
@@ -318,7 +340,7 @@ local loc_zh = {
         name = "救世",
         text = {
             "手牌中的每张{C:spades}#2#{}牌",
-            "给予{C:chips}+#1#{}筹码"
+            "提供{C:chips}+#1#{}筹码"
         }
     },
     j_moji_well_laid_plans = {
@@ -349,25 +371,46 @@ local loc_zh = {
         text = {
             "回合结束时，",
             "每张普通/罕见/稀有/传奇小丑牌",
-            "分别给予{C:blue}$#1#{}/{C:green}$#2#{}/{C:red}$#3#{}/{C:legendary}$#4#{}"
+            "分别提供{C:blue}$#1#{}/{C:green}$#2#{}/{C:red}$#3#{}/{C:legendary}$#4#{}",
+            "{C:inactive}（当前为{C:money}$#5#{C:inactive}）"
         }
     },
-    j_moji_ancient_pact = {
-        name = "先古契约",
+    j_moji_rocket_test = {
+        name = "火箭试验",
         text = {
-            "{C:green}罕见{}、{C:red}稀有{}小丑牌和{C:blue}版本{}",
-            "出现概率提高{C:attention}#1#%{}",
-            -- "{C:legendary}传奇{}小丑牌可以自然出现"
+            "每个启用的{C:attention}Mod{}",
+            "提供{X:mult,C:white}X#1#{}倍率",
+            "{C:inactive}（当前为{X:mult,C:white} X#2# {C:inactive}倍率）"
         }
     },
+    j_moji_now_printing = {
+        name = "印刷中",
+        text = {
+            "下{C:attention}#1#{}次选择{C:attention}盲注{}时，",
+            "给一张随机小丑牌添加",
+            "{C:dark_edition}闪箔{}、{C:dark_edition}镭射{}或{C:dark_edition}多彩{}版本",
+            "{C:inactive}（不会添加给印刷中）"
+        }
+    },
+    j_moji_stamp_collection = {
+        name = "集邮",
+        text = {
+            "每张带{C:dark_edition}版本{}的小丑牌",
+            "提供{X:mult,C:white}X#1#{}倍率",
+            "每种不同的{C:dark_edition}版本{}",
+            "提供{X:mult,C:white}X#2#{}倍率"
+        }
+    }
 }
 
 local misc_loc_en = {
-    k_timeup = "Time's up!"
+    k_timeup = "Time's up!",
+    k_printed = "Prototype printed!"
 }
 
 local misc_loc_zh = {
-    k_timeup = "时间到！"
+    k_timeup = "时间到！",
+    k_printed = "打样成功！"
 }
 
 local loc_txt = G.SETTINGS.language == "zh_CN" and loc_zh or loc_en
@@ -499,7 +542,7 @@ local jokers = {
         slug = "moji_well_laid_plans",
         ability = {extra = {poker_hand = 'High Card'}},
         rarity = 2,
-        cost = 7,
+        cost = 8,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
     j_moji_best_of_three = {
@@ -526,13 +569,29 @@ local jokers = {
         cost = 7,
         unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
     },
-    j_moji_ancient_pact = {
-        ability_name = "Ancient Pact",
-        slug = "moji_ancient_pact",
-        ability = {extra = {percent = 100, legendary_chance = 0.003}},
+    j_moji_rocket_test = {
+        ability_name = "Rocket Test",
+        slug = "moji_rocket_test",
+        ability = {},
+        rarity = 3,
+        cost = 9,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_moji_now_printing = {
+        ability_name = "Now Printing",
+        slug = "moji_now_printing",
+        ability = {extra = {times = 2}},
         rarity = 3,
         cost = 8,
         unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
+    },
+    j_moji_stamp_collection = {
+        ability_name = "Stamp Collection",
+        slug = "moji_stamp_collection",
+        ability = {extra = {Xmult = 1.5, unique_Xmult = 1.5, seen = {}, final_xmult = 1}},
+        rarity = 3,
+        cost = 9,
+        unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     }
 }
 
@@ -552,28 +611,19 @@ local rank_to_str = {
     [14] = "A"
 }
 
+-- General helper functions
 function rank_dec(rank)
     return rank == 2 and 14 or rank - 1
 end
 
-function count_used_planets()
-    local planets_used = 0
+function count_used_consumeables(set)
+    local count = 0
     for k, v in pairs(G.GAME.consumeable_usage) do 
-        if v.set == 'Planet' then 
-            planets_used = planets_used + 1 
+        if v.set == set then
+            count = count + 1
         end 
     end
-    return planets_used
-end
-
-function well_laid_plans_choose(old_hand)
-    local _poker_hands = {}
-    for k, v in pairs(G.GAME.hands) do
-        if v.visible and k ~= old_hand then
-            _poker_hands[#_poker_hands + 1] = k
-        end
-    end
-    return pseudorandom_element(_poker_hands, pseudoseed('well_laid_plans'))
+    return count
 end
 
 function count_base_suit(cards, suit)
@@ -594,6 +644,37 @@ function count_suit(cards, suit)
         end
     end
     return count
+end
+
+function round(num, numDecimalPlaces)
+    local mult = 10^(numDecimalPlaces or 0)
+    return math.floor(num * mult + 0.5) / mult
+end
+
+-- Joker-specific helper functions
+function well_laid_plans_choose(old_hand)
+    local _poker_hands = {}
+    for k, v in pairs(G.GAME.hands) do
+        if v.visible and k ~= old_hand then
+            _poker_hands[#_poker_hands + 1] = k
+        end
+    end
+    return pseudorandom_element(_poker_hands, pseudoseed('well_laid_plans'))
+end
+
+function tax_collector_count()
+    local tax = 0
+    for i = 1, #G.jokers.cards do
+        tax = tax + (G.jokers.cards[i].config.center.rarity or 1)
+    end
+    return tax
+end
+
+function rocket_test_calculate()
+    local count = #SMODS.MODS or 1
+    local Xmult = 2.5 + count * 0.5
+    if count >= 16 then Xmult = math.pow(1.05, count - 15) * 10 end
+    return Xmult, count
 end
 
 function SMODS.INIT.MojiJoker()
@@ -768,7 +849,7 @@ function SMODS.INIT.MojiJoker()
     -- Satellite Payment
     SMODS.Jokers.j_moji_satellite_payment.calculate = function(self, context)
         if context.using_consumeable and not context.blueprint and context.consumeable.ability.set == 'Planet' then
-            self.ability.extra.planets_used = count_used_planets()
+            self.ability.extra.planets_used = count_used_consumeables('Planet')
             G.E_MANAGER:add_event(Event({func = function()
                 for k, v in pairs(G.I.CARD) do
                     if v.set_cost then v:set_cost() end
@@ -778,7 +859,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     SMODS.Jokers.j_moji_satellite_payment.loc_def = function(card)
-        card.ability.extra.planets_used = count_used_planets()
+        card.ability.extra.planets_used = count_used_consumeables('Planet')
         return {card.ability.extra.price_sub, card.ability.extra.planets_used * card.ability.extra.price_sub}
     end
 
@@ -983,7 +1064,8 @@ function SMODS.INIT.MojiJoker()
     end
 
     SMODS.Jokers.j_moji_embrace_the_moon.loc_def = function(card)
-        return {card.ability.extra.dollars, localize(card.ability.extra.suit, 'suits_plural'), card.ability.extra.per}
+        local count = G.deck and count_suit(G.deck.cards, card.ability.extra.suit) or 0
+        return {card.ability.extra.dollars, localize(card.ability.extra.suit, 'suits_plural'), card.ability.extra.per, card.ability.extra.dollars * math.floor(count / card.ability.extra.per)}
     end
 
     -- Hold the Sun
@@ -1118,12 +1200,122 @@ function SMODS.INIT.MojiJoker()
     
     -- Tax Collector
     SMODS.Jokers.j_moji_tax_collector.loc_def = function(card)
-        return {card.ability.extra.dollars, card.ability.extra.dollars * 2, card.ability.extra.dollars * 3, card.ability.extra.dollars * 4}
+        local tax = G.jokers and tax_collector_count() or 0
+        return {card.ability.extra.dollars, card.ability.extra.dollars * 2, card.ability.extra.dollars * 3, card.ability.extra.dollars * 4, tax * card.ability.extra.dollars}
     end
     
-    -- Ancient Pact
-    SMODS.Jokers.j_moji_ancient_pact.loc_def = function(card)
-        return {card.ability.extra.percent}
+    -- Rocket Test
+    SMODS.Jokers.j_moji_rocket_test.calculate = function(self, context)
+        if context.before and not context.blueprint then
+            local tmp = nil
+            self.ability.x_mult, tmp = rocket_test_calculate()
+        end
+    end
+
+    SMODS.Jokers.j_moji_rocket_test.loc_def = function(card)
+        local x_mult, count = rocket_test_calculate()
+        return {string.format("%.2f", math.pow(x_mult, 1 / count)), string.format("%.2f", x_mult)}
+    end
+
+    -- Now Printing
+    SMODS.Jokers.j_moji_now_printing.calculate = function(self, context)
+        if context.setting_blind and not context.blueprint and not self.getting_sliced then
+            local eligible_cards = {}
+            for i = 1, #G.jokers.cards do
+                if G.jokers.cards[i].ability.name ~= 'Now Printing' and (not G.jokers.cards[i].edition) then
+                    eligible_cards[#eligible_cards + 1] = G.jokers.cards[i]
+                end
+            end
+            if #eligible_cards > 0 then
+                local card = pseudorandom_element(eligible_cards, pseudoseed('now_printing'))
+                local edition = poll_edition('now_printing', nil, true, true)
+                card:set_edition(edition, true)
+                self.ability.extra.times = self.ability.extra.times - 1
+            end
+            if self.ability.extra.times == 0 then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        play_sound('tarot1')
+                        self.T.r = -0.2
+                        self:juice_up(0.3, 0.4)
+                        self.states.drag.is = true
+                        self.children.center.pinch.x = true
+                        G.E_MANAGER:add_event(Event({hand_trigger = 'after', delay = 0.3, blockable = false,
+                            func = function()
+                                    G.jokers:remove_card(self)
+                                    self:remove()
+                                    self = nil
+                                return true; end})) 
+                        return true
+                    end
+                }))
+                return {
+                    message = localize('k_printed'),
+                    colour = G.C.FILTER
+                }
+            end
+        end
+    end
+
+    SMODS.Jokers.j_moji_now_printing.loc_def = function(card)
+        return {card.ability.extra.times}
+    end
+
+    -- Stamp Collection
+    SMODS.Jokers.j_moji_stamp_collection.calculate = function(self, context)
+        if context.before and not context.blueprint then
+            self.ability.extra.seen = {foil = nil, holo = nil, polychrome = nil, negative = nil}
+            self.ability.extra.final_xmult = 0
+        end
+
+        if context.other_joker then
+            if context.other_joker.edition then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        context.other_joker:juice_up(0.5, 0.5)
+                        return true
+                    end
+                }))
+                return {
+                    message = localize{type='variable',key='a_xmult',vars={self.ability.extra.Xmult}},
+                    colour = G.C.MULT,
+                    Xmult_mod = self.ability.extra.Xmult
+                }
+            end
+        end
+
+        if SMODS.end_calculate_context(context) then
+            if self.ability.extra.final_xmult == 0 then
+                local count = 0
+                for i = 1, #G.jokers.cards do
+                    if G.jokers.cards[i].edition.foil and not self.ability.extra.seen.foil then
+                        self.ability.extra.seen.foil = true
+                        count = count + 1
+                    elseif G.jokers.cards[i].edition.holo and not self.ability.extra.seen.holo then
+                        self.ability.extra.seen.holo = true
+                        count = count + 1
+                    elseif G.jokers.cards[i].edition.polychrome and not self.ability.extra.seen.polychrome then
+                        self.ability.extra.seen.polychrome = true
+                        count = count + 1
+                    elseif G.jokers.cards[i].edition.negative and not self.ability.extra.seen.negative then
+                        self.ability.extra.seen.negative = true
+                        count = count + 1
+                    end
+                end
+                self.ability.extra.final_xmult = math.pow(self.ability.extra.unique_Xmult, count)
+            end
+            if self.ability.extra.final_xmult > 1 then
+                return {
+                    message = localize{type='variable',key='a_xmult',vars={self.ability.extra.final_xmult}},
+                    colour = G.C.RED,
+                    Xmult_mod = self.ability.extra.final_xmult
+                }
+            end
+        end
+    end
+
+    SMODS.Jokers.j_moji_stamp_collection.loc_def = function(card)
+        return {card.ability.extra.Xmult, card.ability.extra.unique_Xmult}
     end
 end
 
@@ -1155,7 +1347,7 @@ local Card_add_to_deck_ref = Card.add_to_deck
 function Card:add_to_deck(from_debuff)
     if not self.added_to_deck then
         if self.ability.name == 'Satellite Payment' then
-            self.ability.extra.planets_used = count_used_planets()
+            self.ability.extra.planets_used = count_used_consumeables('Planet')
             G.E_MANAGER:add_event(Event({func = function()
                 for k, v in pairs(G.I.CARD) do
                     if v.set_cost then v:set_cost() end
@@ -1187,12 +1379,8 @@ function Card:calculate_dollar_bonus()
         if self.ability.name == 'Embrace the Moon' then
             return self.ability.extra.dollars * math.floor(self.ability.extra.trigger_cnt / self.ability.extra.per)
         end
-        if self.ability.name == 'Tax Collector' then
-            local tax = 0
-            for i = 1, #G.jokers.cards do
-                tax = tax + self.ability.extra.dollars * (G.jokers.cards[i].config.center.rarity or 1)
-            end
-            return tax
+        if self.ability.name == 'Tax Collector' then 
+            return tax_collector_count() * self.ability.extra.dollars
         end
     end
     return Card_calculate_dollar_bonus_ref(self)
@@ -1325,58 +1513,6 @@ G.FUNCS.use_card = function(e, mute, nosave)
         return
     end
     G_FUNCS_use_card_ref(e, mute, nosave)
-end
-
-local get_current_pool_ref = get_current_pool
-function get_current_pool(_type, _rarity, _legendary, _append)
-    if _legendary or _type ~= 'Joker' or _rarity then return get_current_pool_ref(_type, _rarity, _legendary, _append) end
-    local ancient_pact_percent = 0
-    -- local ancient_pact_legendary_chance = 0
-    if G.jokers then
-        for i = 1, #G.jokers.cards do
-            if G.jokers.cards[i].ability.name == 'Ancient Pact' then
-                ancient_pact_percent = ancient_pact_percent + G.jokers.cards[i].ability.extra.percent
-                -- ancient_pact_legendary_chance = ancient_pact_legendary_chance + G.jokers.cards[i].ability.extra.percent
-            end
-        end
-    end
-    if ancient_pact_percent == 0 then return get_current_pool_ref(_type, _rarity, _legendary, _append) end
-
-    local rarity = pseudorandom('rarity'..G.GAME.round_resets.ante..(_append or ''))
-    -- local legendary = pseudorandom('legendary'..G.GAME.round_resets.ante..(_append or ''))
-    -- if 1 - legendary < ancient_pact_legendary_chance then return get_current_pool_ref(_type, 4, true, _append) end
-    local rarity_shift = (ancient_pact_percent + 100) / 100
-    if rarity_shift >= 3 then rarity_shift = 3 end
-    return get_current_pool_ref(_type, 1 - (1 - rarity) / rarity_shift, nil, _append)
-end
-
-local poll_edition_ref = poll_edition
-function poll_edition(_key, _mod, _no_neg, _guaranteed)
-    _mod = _mod or 1
-    if _guaranteed then return poll_edition_ref(_key, _mod, _no_neg, _guaranteed) end
-    local ancient_pact_percent = 0
-    if G.jokers then
-        for i = 1, #G.jokers.cards do
-            if G.jokers.cards[i].ability.name == 'Ancient Pact' then
-                ancient_pact_percent = ancient_pact_percent + G.jokers.cards[i].ability.extra.percent
-            end
-        end
-    end
-    if ancient_pact_percent == 0 then return poll_edition_ref(_key, _mod, _no_neg, _guaranteed) end
-
-    _mod = _mod * (100 + ancient_pact_percent) / 100
-    if G.GAME.edition_rate * _mod >= 25 then _mod = 25 / G.GAME.edition_rate end
-    local edition_poll = pseudorandom(pseudoseed(_key or 'edition_generic'))
-    if edition_poll > 1 - 0.003*_mod and not _no_neg then
-        return {negative = true}
-    elseif edition_poll > 1 - 0.006*G.GAME.edition_rate*_mod then
-        return {polychrome = true}
-    elseif edition_poll > 1 - 0.02*G.GAME.edition_rate*_mod then
-        return {holo = true}
-    elseif edition_poll > 1 - 0.04*G.GAME.edition_rate*_mod then
-        return {foil = true}
-    end
-    return nil
 end
 
 ----------------------------------------------
