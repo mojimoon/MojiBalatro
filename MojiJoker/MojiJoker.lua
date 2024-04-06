@@ -8,10 +8,10 @@
 ------------MOD CODE -------------------------
 
 local MOD_ID = "MojiJoker"
-local MOD_VERSION = "20240405.2"
+local MOD_VERSION = "20240406.1"
 
 local loc_en = {
-    j_color_out_of_space = {
+    j_moji_color_out_of_space = {
         name = "Color Out of Space",
         text = {
             "Gain {X:mult,C:white}X#1#{} multiplier per",
@@ -20,7 +20,7 @@ local loc_en = {
             "{C:inactive}(Currently {X:mult,C:white} X#2# {C:inactive} Mult)"
         }
     },
-    j_garbage_time = {
+    j_moji_garbage_time = {
         name = "Garbage Time",
         text = {
             "{X:mult,C:white}X#2#{} Mult,",
@@ -29,7 +29,7 @@ local loc_en = {
             "by the end of the round"
         }
     },
-    j_new_order = {
+    j_moji_new_order = {
         name = "The New Order",
         text = {
             "{X:mult,C:white}X#1#{} Mult when {C:attention}#4#{}",
@@ -41,7 +41,7 @@ local loc_en = {
             "{C:inactive}(Currently {X:mult,C:white} X#3# {C:inactive} Mult)"
         }
     },
-    j_quantization = {
+    j_moji_quantization = {
         name = "Quantization",
         text = {
             "If at least {C:attention}#3#{} scoring cards",
@@ -51,7 +51,7 @@ local loc_en = {
             "{C:inactive}(Currently {C:mult}+#2#{C:inactive} Mult)"
         }
     },
-    j_satellite_payment = {
+    j_moji_satellite_payment = {
         name = "Satellite Payment",
         text = {
             "All items in shop are {C:money}$#1#{} cheaper",
@@ -60,7 +60,7 @@ local loc_en = {
             "{C:inactive}(Currently {C:money}-$#2#{C:inactive})"
         }
     },
-    j_transcendence = {
+    j_moji_transcendence = {
         name = "Transcendence",
         text = {
             "When {C:attention}Blind{} is selected,",
@@ -68,7 +68,7 @@ local loc_en = {
             "{C:inactive}(Must have room)"
         }
     },
-    j_moji_star = {
+    j_moji_calamity_star = {
         name = "Calamity Star",
         text = {
             "When {C:attention}Blind{} is selected,",
@@ -76,7 +76,7 @@ local loc_en = {
             "{C:inactive}(Must have room)"
         }
     },
-    j_moji_moon = {
+    j_moji_crescent_moon = {
         name = "Crescent Moon",
         text = {
             "When {C:attention}Blind{} is selected,",
@@ -84,7 +84,7 @@ local loc_en = {
             "{C:inactive}(Must have room)"
         }
     },
-    j_moji_sun = {
+    j_moji_solar_eclipse = {
         name = "Solar Eclipse",
         text = {
             "When {C:attention}Blind{} is selected,",
@@ -92,7 +92,7 @@ local loc_en = {
             "{C:inactive}(Must have room)"
         }
     },
-    j_moji_world = {
+    j_moji_doomed_world = {
         name = "Doomed World",
         text = {
             "When {C:attention}Blind{} is selected,",
@@ -100,7 +100,7 @@ local loc_en = {
             "{C:inactive}(Must have room)"
         }
     },
-    j_sisyphus = {
+    j_moji_sisyphus = {
         name = "Sisyphus",
         text = {
             "When {C:attention}Blind{} is selected,",
@@ -111,25 +111,27 @@ local loc_en = {
             "{C:inactive}(Currently {X:mult,C:white} X#2# {C:inactive} Mult)"
         }
     },
-    j_moji_diamonds = {
+    j_moji_pursue_the_stars = {
         name = "Pursue the Stars",
         text = {
-            "{C:mult}+Difference{} Mult",
-            "per {C:diamonds}#2#{} card in your deck",
-            "exceeding {C:attention}#3#{}",
-            "{C:inactive}(Currently {C:mult}+#1#{C:inactive} Mult)"
+            "{C:mult}+#1#{} Mult for each",
+            "{C:diamonds}#3#{} card, except the first",
+            "{C:attention}#4#{} in your full deck",
+            "{C:inactive}(Effective suit is used)",
+            "{C:inactive}(Currently {C:mult}+#2#{C:inactive} Mult)"
         }
     },
-    j_moji_clubs = {
+    j_moji_embrace_the_moon = {
         name = "Embrace the Moon",
         text = {
             "Earn {C:money}$#1#{}",
             "for every {C:attention}#3#{} {C:clubs}#2#{} card",
             "in the remaining deck",
-            "at the end of the round"
+            "at the end of the round",
+            "{C:inactive}(Effective suit is used)"
         }
     },
-    j_moji_hearts = {
+    j_moji_hold_the_sun = {
         name = "Hold the Sun",
         text = {
             "Once per round,",
@@ -137,14 +139,14 @@ local loc_en = {
             "if a {C:hearts}#1#{} card is played and scored"
         }
     },
-    j_moji_spades = {
+    j_moji_salvage_the_world = {
         name = "Salvage the World",
         text = {
             "{C:chips}+#1#{} Chips",
             "per {C:spades}#2#{} card in your hand"
         }
     },
-    j_well_laid_plans = {
+    j_moji_well_laid_plans = {
         name = "Well-Laid Plans",
         text = {
             "{C:attention}Upgrade{} level of played poker hand",
@@ -152,7 +154,7 @@ local loc_en = {
             "Poker hand changes after each {C:attention}discard{}"
         }
     },
-    j_best_of_three = {
+    j_moji_best_of_three = {
         name = "Best-of-Three",
         text = {
             "{C:attention}Upgrade{} level of played poker hand",
@@ -163,7 +165,7 @@ local loc_en = {
 }
 
 local loc_zh = {
-    j_color_out_of_space = {
+    j_moji_color_out_of_space = {
         name = "星之彩",
         text = {
             "连续打出包含{C:attention}#3#{}的牌时，",
@@ -172,7 +174,7 @@ local loc_zh = {
             "{C:inactive}（当前为{X:mult,C:white} X#2# {C:inactive}倍率）"
         }
     },
-    j_garbage_time = {
+    j_moji_garbage_time = {
         name = "垃圾时间",
         text = {
             "{X:mult,C:white}X#2#{}倍率",
@@ -181,7 +183,7 @@ local loc_zh = {
             "失去{X:mult,C:white}X#1#{}倍率"
         }
     },
-    j_new_order = {
+    j_moji_new_order = {
         name = "新秩序",
         text = {
             "打出{C:attention}#4#{}并计分时，",
@@ -193,7 +195,7 @@ local loc_zh = {
             "{C:inactive}（当前为{X:mult,C:white} X#3# {C:inactive}倍率）"
         }
     },
-    j_quantization = {
+    j_moji_quantization = {
         name = "量(子)化",
         text = {
             "同时打出至少{C:attention}#3#{}张计分牌时，",
@@ -202,7 +204,7 @@ local loc_zh = {
             "{C:inactive}（当前为{C:mult}+#2#{C:inactive}倍率）"
         }
     },
-    j_satellite_payment = {
+    j_moji_satellite_payment = {
         name = "卫星支付",
         text = {
             "本局游戏每使用过一种{C:planet}星球牌",
@@ -211,7 +213,7 @@ local loc_zh = {
             "{C:inactive}（当前为{C:money}-$#2#{C:inactive}）"
         }
     },
-    j_transcendence = {
+    j_moji_transcendence = {
         name = "超凡升天",
         text = {
             "选择{C:attention}盲注{}后",
@@ -219,7 +221,7 @@ local loc_zh = {
             "{C:inactive}（必须有空位）"
         }
     },
-    j_moji_star = {
+    j_moji_calamity_star = {
         name = "灾星",
         text = {
             "选择{C:attention}盲注{}后",
@@ -227,7 +229,7 @@ local loc_zh = {
             "{C:inactive}（必须有空位）"
         }
     },
-    j_moji_moon = {
+    j_moji_crescent_moon = {
         name = "残月",
         text = {
             "选择{C:attention}盲注{}后",
@@ -235,7 +237,7 @@ local loc_zh = {
             "{C:inactive}（必须有空位）"
         }
     },
-    j_moji_sun = {
+    j_moji_solar_eclipse = {
         name = "日食",
         text = {
             "选择{C:attention}盲注{}后",
@@ -243,7 +245,7 @@ local loc_zh = {
             "{C:inactive}（必须有空位）"
         }
     },
-    j_moji_world = {
+    j_moji_doomed_world = {
         name = "末世",
         text = {
             "选择{C:attention}盲注{}后",
@@ -251,7 +253,7 @@ local loc_zh = {
             "{C:inactive}（必须有空位）"
         }
     },
-    j_sisyphus = {
+    j_moji_sisyphus = {
         name = "西西弗斯",
         text = {
             "选择{C:attention}盲注{}后",
@@ -262,24 +264,26 @@ local loc_zh = {
             "{C:inactive}（当前为{X:mult,C:white} X#2# {C:inactive}倍率）"
         }
     },
-    j_moji_diamonds = {
+    j_moji_pursue_the_stars = {
         name = "逐星",
         text = {
-            "牌组中的{C:diamonds}#2#{}牌",
-            "每比{C:attention}#3#{}张多1张，",
-            "获得{C:mult}+差值{}倍率",
-            "{C:inactive}（当前为{C:mult}+#1#{C:inactive}倍率）"
+            "完整牌组中的{C:diamonds}#3#{}牌",
+            "每比{C:attention}#4#{}张多1张，",
+            "获得{C:mult}+#1#{}倍率",
+            "{C:inactive}（按有效花色计算）",
+            "{C:inactive}（当前为{C:mult}+#2#{C:inactive}倍率）"
         }
     },
-    j_moji_clubs = {
+    j_moji_embrace_the_moon = {
         name = "捧月",
         text = {
             "回合结束时，剩余牌组中",
             "每有{C:attention}#3#{}张{C:clubs}#2#{}牌，",
-            "获得{C:money}$#1#{}"
+            "获得{C:money}$#1#{}",
+            "{C:inactive}（按有效花色计算）"
         }
     },
-    j_moji_hearts = {
+    j_moji_hold_the_sun = {
         name = "执日",
         text = {
             "每回合首次",
@@ -287,14 +291,14 @@ local loc_zh = {
             "{C:attention}升级{}出牌牌型"
         }
     },
-    j_moji_spades = {
+    j_moji_salvage_the_world = {
         name = "救世",
         text = {
             "手牌中的每张{C:spades}#2#{}牌",
             "给予{C:chips}+#1#{}筹码"
         }
     },
-    j_well_laid_plans = {
+    j_moji_well_laid_plans = {
         name = "计划妥当",
         text = {
             "若出牌牌型为{C:attention}#1#{}，",
@@ -302,7 +306,7 @@ local loc_zh = {
             "每次{C:attention}弃牌{}后牌型都会改变"
         }
     },
-    j_best_of_three = {
+    j_moji_best_of_three = {
         name = "BO3",
         text = {
             "每在同一回合中",
@@ -324,137 +328,137 @@ local loc_txt = G.SETTINGS.language == "zh_CN" and loc_zh or loc_en
 local misc_loc_txt = G.SETTINGS.language == "zh_CN" and misc_loc_zh or misc_loc_en
 
 local jokers = {
-    j_color_out_of_space = {
+    j_moji_color_out_of_space = {
         ability_name = "Color Out of Space",
-        slug = "color_out_of_space",
+        slug = "moji_color_out_of_space",
         ability = {extra = {Xmult_add = 0.5, type = 'Flush'}},
         rarity = 2,
-        cost = 7,
+        cost = 8,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_garbage_time = {
+    j_moji_garbage_time = {
         ability_name = "Garbage Time",
-        slug = "garbage_time",
-        ability = {Xmult = 3, extra = {Xmult_sub = 0.4}},
+        slug = "moji_garbage_time",
+        ability = {Xmult = 3.5, extra = {Xmult_sub = 0.5}},
         rarity = 2,
         cost = 7,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_new_order = {
+    j_moji_new_order = {
         ability_name = "The New Order",
-        slug = "new_order",
+        slug = "moji_new_order",
         ability = {extra = {Xmult_add = 0.2, Xmult_sub = 0.1, rank = 14}},
         rarity = 3,
         cost = 8,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_quantization = {
+    j_moji_quantization = {
         ability_name = "Quantization",
-        slug = "quantization",
+        slug = "moji_quantization",
         ability = {extra = {mult_add = 1, min_cards = 3}},
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_satellite_payment = {
+    j_moji_satellite_payment = {
         ability_name = "Satellite Payment",
-        slug = "satellite_payment",
+        slug = "moji_satellite_payment",
         ability = {extra = {price_sub = 1, planets_used = 0}},
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
     },
-    j_transcendence = {
+    j_moji_transcendence = {
         ability_name = "Transcendence",
-        slug = "transcendence",
+        slug = "moji_transcendence",
         ability = {},
         rarity = 1,
         cost = 5,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_moji_star = {
+    j_moji_calamity_star = {
         ability_name = "Calamity Star",
-        slug = "moji_star",
+        slug = "moji_calamity_star",
         ability = {},
         rarity = 1,
         cost = 5,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_moji_moon = {
+    j_moji_crescent_moon = {
         ability_name = "Crescent Moon",
-        slug = "moji_moon",
+        slug = "moji_crescent_moon",
         ability = {},
         rarity = 1,
         cost = 5,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_moji_sun = {
+    j_moji_solar_eclipse = {
         ability_name = "Solar Eclipse",
-        slug = "moji_sun",
+        slug = "moji_solar_eclipse",
         ability = {},
         rarity = 1,
         cost = 5,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_moji_world = {
+    j_moji_doomed_world = {
         ability_name = "Doomed World",
-        slug = "moji_world",
+        slug = "moji_doomed_world",
         ability = {},
         rarity = 1,
         cost = 5,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_sisyphus = {
+    j_moji_sisyphus = {
         ability_name = "Sisyphus",
-        slug = "sisyphus",
+        slug = "moji_sisyphus",
         ability = {extra = {Xmult_add = 0.1}},
         rarity = 3,
         cost = 9,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_moji_diamonds = {
+    j_moji_pursue_the_stars = {
         ability_name = "Pursue the Stars",
-        slug = "moji_diamonds",
-        ability = {extra = {mult_add = 2, suit = 'Diamonds', diff_base = 13}},
+        slug = "moji_pursue_the_stars",
+        ability = {extra = {mult = 4, suit = 'Diamonds', diff_base = 13}},
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_moji_clubs = {
+    j_moji_embrace_the_moon = {
         ability_name = "Embrace the Moon",
-        slug = "moji_clubs",
+        slug = "moji_embrace_the_moon",
         ability = {extra = {dollars = 2, per = 3, suit = 'Clubs', trigger_cnt = 0}},
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
     },
-    j_moji_hearts = {
+    j_moji_hold_the_sun = {
         ability_name = "Hold the Sun",
-        slug = "moji_hearts",
+        slug = "moji_hold_the_sun",
         ability = {extra = {suit = 'Hearts', trigger_hand = -1}},
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_moji_spades = {
+    j_moji_salvage_the_world = {
         ability_name = "Salvage the World",
-        slug = "moji_spades",
+        slug = "moji_salvage_the_world",
         ability = {extra = {chips = 100, suit = 'Spades', trigger_cnt = 0}},
         rarity = 2,
         cost = 6,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_well_laid_plans = {
+    j_moji_well_laid_plans = {
         ability_name = "Well-Laid Plans",
-        slug = "well_laid_plans",
+        slug = "moji_well_laid_plans",
         ability = {extra = {poker_hand = 'High Card'}},
         rarity = 2,
         cost = 7,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
     },
-    j_best_of_three = {
+    j_moji_best_of_three = {
         ability_name = "Best-of-Three",
-        slug = "best_of_three",
+        slug = "moji_best_of_three",
         ability = {extra = {per = 2, trigger_table = {}, triggered_this_hand = false}},
         rarity = 2,
         cost = 7,
@@ -575,7 +579,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Color Out of Space
-    SMODS.Jokers.j_color_out_of_space.calculate = function(self, context)
+    SMODS.Jokers.j_moji_color_out_of_space.calculate = function(self, context)
         if context.before and not context.blueprint then
             if next(context.poker_hands[self.ability.extra.type]) then
                 self.ability.x_mult = self.ability.x_mult + self.ability.extra.Xmult_add
@@ -597,7 +601,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Garbage Time
-    SMODS.Jokers.j_garbage_time.calculate = function(self, context)
+    SMODS.Jokers.j_moji_garbage_time.calculate = function(self, context)
         if context.end_of_round and not context.individual and not context.repetition and not context.blueprint then
             if G.GAME.current_round.hands_played > 1 then
                 local new_mult = self.ability.x_mult - self.ability.extra.Xmult_sub
@@ -635,7 +639,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- The New Order
-    SMODS.Jokers.j_new_order.calculate = function(self, context)
+    SMODS.Jokers.j_moji_new_order.calculate = function(self, context)
         if context.before and not context.blueprint then
             local hand_trigger = 0
             for i = 1, #context.scoring_hand do
@@ -668,7 +672,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Quantization
-    SMODS.Jokers.j_quantization.calculate = function(self, context)
+    SMODS.Jokers.j_moji_quantization.calculate = function(self, context)
         if context.before and not context.blueprint then
             if #context.scoring_hand >= self.ability.extra.min_cards then
                 local add_mult = self.ability.extra.mult_add * #context.scoring_hand
@@ -700,7 +704,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Satellite Payment
-    SMODS.Jokers.j_satellite_payment.calculate = function(self, context)
+    SMODS.Jokers.j_moji_satellite_payment.calculate = function(self, context)
         if context.using_consumeable and not context.blueprint and context.consumeable.ability.set == 'Planet' then
             self.ability.extra.planets_used = count_used_planets()
             G.E_MANAGER:add_event(Event({func = function()
@@ -712,7 +716,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Transcendence
-    SMODS.Jokers.j_transcendence.calculate = function(self, context)
+    SMODS.Jokers.j_moji_transcendence.calculate = function(self, context)
         if context.setting_blind then
             if not (context.blueprint_card or self).getting_sliced and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
@@ -734,7 +738,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Calamity Star
-    SMODS.Jokers.j_moji_star.calculate = function(self, context)
+    SMODS.Jokers.j_moji_calamity_star.calculate = function(self, context)
         if context.setting_blind then
             if not (context.blueprint_card or self).getting_sliced and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
@@ -756,7 +760,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Crescent Moon
-    SMODS.Jokers.j_moji_moon.calculate = function(self, context)
+    SMODS.Jokers.j_moji_crescent_moon.calculate = function(self, context)
         if context.setting_blind then
             if not (context.blueprint_card or self).getting_sliced and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
@@ -778,7 +782,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Solar Eclipse
-    SMODS.Jokers.j_moji_sun.calculate = function(self, context)
+    SMODS.Jokers.j_moji_solar_eclipse.calculate = function(self, context)
         if context.setting_blind then
             if not (context.blueprint_card or self).getting_sliced and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
@@ -800,7 +804,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Doomed World
-    SMODS.Jokers.j_moji_world.calculate = function(self, context)
+    SMODS.Jokers.j_moji_doomed_world.calculate = function(self, context)
         if context.setting_blind then
             if not (context.blueprint_card or self).getting_sliced and #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
@@ -822,7 +826,7 @@ function SMODS.INIT.MojiJoker()
     end
     
     -- Sisyphus
-    SMODS.Jokers.j_sisyphus.calculate = function(self, context)
+    SMODS.Jokers.j_moji_sisyphus.calculate = function(self, context)
         if context.setting_blind and not self.getting_sliced and not context.blueprint then
             local non_stone_cards = {}
             for i = 1, #G.deck.cards do
@@ -854,21 +858,21 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Pursue the Stars
-    SMODS.Jokers.j_moji_diamonds.calculate = function(self, context)
+    SMODS.Jokers.j_moji_pursue_the_stars.calculate = function(self, context)
         if SMODS.end_calculate_context(context) then
-            local diff = count_base_suit(G.playing_card, self.ability.extra.suit) - self.ability.extra.diff_base
+            local diff = count_suit(G.playing_cards, self.ability.extra.suit) - self.ability.extra.diff_base
             if diff > 0 then
                 return {
-                    message = localize{type='variable',key='a_mult',vars={diff * diff}},
+                    message = localize{type='variable',key='a_mult',vars={diff * self.ability.extra.mult}},
                     colour = G.C.MULT,
-                    mult_mod = diff * diff
+                    mult_mod = diff * self.ability.extra.mult
                 }
             end
         end
     end
 
     -- Embrace the Moon
-    SMODS.Jokers.j_moji_clubs.calculate = function(self, context)
+    SMODS.Jokers.j_moji_embrace_the_moon.calculate = function(self, context)
         if context.setting_blind and not context.blueprint then
             self.ability.extra.trigger_cnt = 0
         end
@@ -879,7 +883,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Hold the Sun
-    SMODS.Jokers.j_moji_hearts.calculate = function(self, context)
+    SMODS.Jokers.j_moji_hold_the_sun.calculate = function(self, context)
         if context.setting_blind and not self.getting_sliced and not context.blueprint then
             self.ability.extra.trigger_hand = -1
         end
@@ -905,7 +909,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Salvage the World
-    SMODS.Jokers.j_moji_spades.calculate = function(self, context)
+    SMODS.Jokers.j_moji_salvage_the_world.calculate = function(self, context)
         if context.before then
             self.ability.extra.trigger_cnt = 0
         end
@@ -933,7 +937,7 @@ function SMODS.INIT.MojiJoker()
     end
 
     -- Well-Laid Plans
-    SMODS.Jokers.j_well_laid_plans.calculate = function(self, context)
+    SMODS.Jokers.j_moji_well_laid_plans.calculate = function(self, context)
         if context.before then
             if context.scoring_name == self.ability.extra.poker_hand then
                 return {
@@ -956,7 +960,7 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
-    SMODS.Jokers.j_best_of_three.calculate = function(self, context)
+    SMODS.Jokers.j_moji_best_of_three.calculate = function(self, context)
         if context.setting_blind and not context.blueprint and not self.getting_sliced then
             for k, v in pairs(G.GAME.hands) do
                 self.ability.extra.trigger_table[k] = 0
@@ -1017,6 +1021,9 @@ function Card:set_ability(center, initial, delay_sprites)
     Card_set_ability_ref(self, center, initial, delay_sprites)
     if self.ability.name == 'Well-Laid Plans' then
         self.ability.extra.poker_hand = well_laid_plans_choose(nil)
+    end
+    if self.ability.name == 'Pursue the Stars' then
+        self.ability.extra.diff_base = G.GAME.starting_deck_size / 4 or 13
     end
 end
 
@@ -1083,9 +1090,10 @@ function Card.generate_UIBox_ability_table(self)
                 self.ability.x_mult
             }
         elseif self.ability.name == 'Pursue the Stars' then
-            local diff = G.playing_cards and (count_base_suit(G.playing_cards, self.ability.extra.suit) - self.ability.extra.diff_base) or 0
+            local diff = G.playing_cards and (count_suit(G.playing_cards, self.ability.extra.suit) - self.ability.extra.diff_base) or 0
             loc_vars = {
-                diff > 0 and diff * diff or 0,
+                self.ability.extra.mult,
+                diff * self.ability.extra.mult,
                 localize(self.ability.extra.suit, 'suits_singular'),
                 self.ability.extra.diff_base
             }
