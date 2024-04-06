@@ -8,7 +8,7 @@
 ------------MOD CODE -------------------------
 
 local MOD_ID = "MojiJoker"
-local MOD_VERSION = "20240406.1"
+local MOD_VERSION = "20240406.2"
 
 local loc_en = {
     j_moji_color_out_of_space = {
@@ -160,6 +160,29 @@ local loc_en = {
             "{C:attention}Upgrade{} level of played poker hand",
             "each time it is played {C:attention}#1#{} times",
             "in the same round"
+        }
+    },
+    j_moji_binoculars = {
+        name = "Binoculars",
+        text = {
+            "When a {C:planet} planet card is used,",
+            "use it {C:attention}#1#{} more time"
+        }
+    },
+    j_moji_tax_collector = {
+        name = "Tax Collector",
+        text = {
+            "Earn {C:blue}$#1#{}/{C:green}$#2#{}/{C:red}$#3#{}/{C:legendary}$#4#{}",
+            "for each Joker based on its rarity",
+            "at the end of the round"
+        }
+    },
+    j_moji_ancient_pact = {
+        name = "Ancient Pact",
+        text = {
+            "{C:green}Uncommon{}, {C:red}Rare{} Jokers and {C:blue}Edition{}",
+            "are {C:attention}#1#%{} more likely to appear",
+            -- "{C:legendary}Legendary{} Jokers can appear naturally"
         }
     }
 }
@@ -313,7 +336,30 @@ local loc_zh = {
             "打出同一牌型{C:attention}#1#{}次，",
             "将其升级"
         }
-    }
+    },
+    j_moji_binoculars = {
+        name = "双筒望远镜",
+        text = {
+            "使用{C:planet}星球牌{}时，",
+            "再使用{C:attention}#1#{}次"
+        }
+    },
+    j_moji_tax_collector = {
+        name = "税收官",
+        text = {
+            "回合结束时，",
+            "每张普通/罕见/稀有/传奇小丑牌",
+            "分别提供{C:blue}$#1#{}/{C:green}$#2#{}/{C:red}$#3#{}/{C:legendary}$#4#{}"
+        }
+    },
+    j_moji_ancient_pact = {
+        name = "先古契约",
+        text = {
+            "{C:green}罕见{}、{C:red}稀有{}小丑牌和{C:blue}版本{}",
+            "出现概率提高{C:attention}#1#%{}",
+            -- "{C:legendary}传奇{}小丑牌可以自然出现"
+        }
+    },
 }
 
 local misc_loc_en = {
@@ -463,6 +509,30 @@ local jokers = {
         rarity = 2,
         cost = 7,
         unlocked = true, discovered = true, blueprint_compat = true, eternal_compat = true
+    },
+    j_moji_binoculars = {
+        ability_name = "Binoculars",
+        slug = "moji_binoculars",
+        ability = {extra = {repeat_times = 1}},
+        rarity = 2,
+        cost = 6,
+        unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
+    },
+    j_moji_tax_collector = {
+        ability_name = "Tax Collector",
+        slug = "moji_tax_collector",
+        ability = {extra = {dollars = 1}},
+        rarity = 2,
+        cost = 7,
+        unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
+    },
+    j_moji_ancient_pact = {
+        ability_name = "Ancient Pact",
+        slug = "moji_ancient_pact",
+        ability = {extra = {percent = 100, legendary_chance = 0.003}},
+        rarity = 2,
+        cost = 8,
+        unlocked = true, discovered = true, blueprint_compat = false, eternal_compat = true
     }
 }
 
@@ -524,30 +594,6 @@ function count_suit(cards, suit)
         end
     end
     return count
-end
-
-function Card:set_cost()
-    self.extra_cost = 0 + G.GAME.inflation
-    if G.jokers then
-        for i = 1, #G.jokers.cards do
-            if G.jokers.cards[i].ability.name == 'Satellite Payment' then
-                self.extra_cost = self.extra_cost - G.jokers.cards[i].ability.extra.planets_used * G.jokers.cards[i].ability.extra.price_sub
-            end
-        end
-    end
-    if self.edition then
-        self.extra_cost = self.extra_cost + (self.edition.holo and 3 or 0) + (self.edition.foil and 2 or 0) + 
-        (self.edition.polychrome and 5 or 0) + (self.edition.negative and 5 or 0)
-    end
-    self.cost = math.max(1, math.floor((self.base_cost + self.extra_cost + 0.5)*(100-G.GAME.discount_percent)/100))
-    if self.ability.set == 'Booster' and G.GAME.modifiers.booster_ante_scaling then self.cost = self.cost + G.GAME.round_resets.ante - 1 end
-    if self.ability.set == 'Booster' and (not G.SETTINGS.tutorial_complete) and G.SETTINGS.tutorial_progress and (not G.SETTINGS.tutorial_progress.completed_parts['shop_1']) then
-        self.cost = self.cost + 3
-    end
-    if (self.ability.set == 'Planet' or (self.ability.set == 'Booster' and self.ability.name:find('Celestial'))) and #find_joker('Astronomer') > 0 then self.cost = 0 end
-    self.sell_cost = math.max(1, math.floor(self.cost/2)) + (self.ability.extra_value or 0)
-    if self.area and self.ability.couponed and (self.area == G.shop_jokers or self.area == G.shop_booster) then self.cost = 0 end
-    self.sell_cost_label = self.facing == 'back' and '?' or self.sell_cost
 end
 
 function SMODS.INIT.MojiJoker()
@@ -960,6 +1006,7 @@ function SMODS.INIT.MojiJoker()
         end
     end
 
+    -- Best-of-Three
     SMODS.Jokers.j_moji_best_of_three.calculate = function(self, context)
         if context.setting_blind and not context.blueprint and not self.getting_sliced then
             for k, v in pairs(G.GAME.hands) do
@@ -985,6 +1032,36 @@ function SMODS.INIT.MojiJoker()
             self.ability.extra.triggered_this_hand = false
         end
     end
+
+    -- Binoculars
+    
+    -- Tax Collector
+    
+    -- Ancient Pact
+end
+
+function Card:set_cost()
+    self.extra_cost = 0 + G.GAME.inflation
+    if G.jokers then
+        for i = 1, #G.jokers.cards do
+            if G.jokers.cards[i].ability.name == 'Satellite Payment' then
+                self.extra_cost = self.extra_cost - G.jokers.cards[i].ability.extra.planets_used * G.jokers.cards[i].ability.extra.price_sub
+            end
+        end
+    end
+    if self.edition then
+        self.extra_cost = self.extra_cost + (self.edition.holo and 3 or 0) + (self.edition.foil and 2 or 0) + 
+        (self.edition.polychrome and 5 or 0) + (self.edition.negative and 5 or 0)
+    end
+    self.cost = math.max(1, math.floor((self.base_cost + self.extra_cost + 0.5)*(100-G.GAME.discount_percent)/100))
+    if self.ability.set == 'Booster' and G.GAME.modifiers.booster_ante_scaling then self.cost = self.cost + G.GAME.round_resets.ante - 1 end
+    if self.ability.set == 'Booster' and (not G.SETTINGS.tutorial_complete) and G.SETTINGS.tutorial_progress and (not G.SETTINGS.tutorial_progress.completed_parts['shop_1']) then
+        self.cost = self.cost + 3
+    end
+    if (self.ability.set == 'Planet' or (self.ability.set == 'Booster' and self.ability.name:find('Celestial'))) and #find_joker('Astronomer') > 0 then self.cost = 0 end
+    self.sell_cost = math.max(1, math.floor(self.cost/2)) + (self.ability.extra_value or 0)
+    if self.area and self.ability.couponed and (self.area == G.shop_jokers or self.area == G.shop_booster) then self.cost = 0 end
+    self.sell_cost_label = self.facing == 'back' and '?' or self.sell_cost
 end
 
 local Card_add_to_deck_ref = Card.add_to_deck
@@ -1034,8 +1111,196 @@ function Card:calculate_dollar_bonus()
         if self.ability.name == 'Embrace the Moon' then
             return self.ability.extra.dollars * math.floor(self.ability.extra.trigger_cnt / self.ability.extra.per)
         end
+        if self.ability.name == 'Tax Collector' then
+            local tax = 0
+            for i = 1, #G.jokers.cards do
+                tax = tax + self.ability.extra.dollars * (G.jokers.cards[i].config.center.rarity or 1)
+            end
+            return tax
+        end
     end
     return Card_calculate_dollar_bonus_ref(self)
+end
+
+local G_FUNCS_use_card_ref = G.FUNCS.use_card
+G.FUNCS.use_card = function(e, mute, nosave)
+    e.config.button = nil
+    local card = e.config.ref_table
+    local area = card.area
+    local prev_state = G.STATE
+    local dont_dissolve = nil
+    local delay_fac = 1
+
+    if card:check_use() then 
+        G.E_MANAGER:add_event(Event({func = function()
+        e.disable_button = nil
+        e.config.button = 'use_card'
+        return true end }))
+        return
+    end
+
+    local count_binoculars = 0
+    if G.jokers then
+        for i = 1, #G.jokers.cards do
+            if G.jokers.cards[i].ability.name == 'Binoculars' then
+                count_binoculars = count_binoculars + G.jokers.cards[i].ability.extra.repeat_times
+            end
+        end
+    end
+
+    if card.ability.set == 'Planet' and count_binoculars > 0 then
+        -- todo: binoculars
+        G.TAROT_INTERRUPT = G.STATE
+
+        G.CONTROLLER.locks.use = true
+        if G.booster_pack and not G.booster_pack.alignment.offset.py and (card.ability.consumeable or not (G.GAME.pack_choices and G.GAME.pack_choices > 1)) then
+            G.booster_pack.alignment.offset.py = G.booster_pack.alignment.offset.y
+            G.booster_pack.alignment.offset.y = G.ROOM.T.y + 29
+        end
+        if G.shop and not G.shop.alignment.offset.py then
+            G.shop.alignment.offset.py = G.shop.alignment.offset.y
+            G.shop.alignment.offset.y = G.ROOM.T.y + 29
+        end
+        if G.blind_select and not G.blind_select.alignment.offset.py then
+            G.blind_select.alignment.offset.py = G.blind_select.alignment.offset.y
+            G.blind_select.alignment.offset.y = G.ROOM.T.y + 39
+        end
+        if G.round_eval and not G.round_eval.alignment.offset.py then
+            G.round_eval.alignment.offset.py = G.round_eval.alignment.offset.y
+            G.round_eval.alignment.offset.y = G.ROOM.T.y + 29
+        end
+    
+        if card.children.use_button then card.children.use_button:remove(); card.children.use_button = nil end
+        if card.children.sell_button then card.children.sell_button:remove(); card.children.sell_button = nil end
+        if card.children.price then card.children.price:remove(); card.children.price = nil end
+    
+        if card.area then card.area:remove_card(card) end
+
+        if G.STATE == G.STATES.TAROT_PACK or G.STATE == G.STATES.PLANET_PACK or G.STATE == G.STATES.SPECTRAL_PACK then
+            card.T.x = G.hand.T.x + G.hand.T.w/2 - card.T.w/2
+            card.T.y = G.hand.T.y + G.hand.T.h/2 - card.T.h/2 - 0.5
+            discover_card(card.config.center)
+        else draw_card(G.hand, G.play, 1, 'up', true, card, nil, mute) end
+        delay(0.2)
+        for i = 0, count_binoculars do
+            e.config.ref_table:use_consumeable(area)
+            for i = 1, #G.jokers.cards do
+                G.jokers.cards[i]:calculate_joker({using_consumeable = true, consumeable = card})
+            end
+        end
+
+        G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.2,
+        func = function()
+            if not dont_dissolve then card:start_dissolve() end
+            G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.1,
+            func = function()
+                G.STATE = prev_state
+                G.TAROT_INTERRUPT=nil
+                G.CONTROLLER.locks.use = false
+                if (prev_state == G.STATES.TAROT_PACK or prev_state == G.STATES.PLANET_PACK or
+                prev_state == G.STATES.SPECTRAL_PACK or prev_state == G.STATES.STANDARD_PACK or
+                prev_state == G.STATES.BUFFOON_PACK) and G.booster_pack then
+                if area == G.consumeables then
+                    G.booster_pack.alignment.offset.y = G.booster_pack.alignment.offset.py
+                    G.booster_pack.alignment.offset.py = nil
+                elseif G.GAME.pack_choices and G.GAME.pack_choices > 1 then
+                    if G.booster_pack.alignment.offset.py then 
+                    G.booster_pack.alignment.offset.y = G.booster_pack.alignment.offset.py
+                    G.booster_pack.alignment.offset.py = nil
+                    end
+                    G.GAME.pack_choices = G.GAME.pack_choices - 1
+                else
+                    G.CONTROLLER.interrupt.focus = true
+                    if prev_state == G.STATES.TAROT_PACK then inc_career_stat('c_tarot_reading_used', 1) end
+                    if prev_state == G.STATES.PLANET_PACK then inc_career_stat('c_planetarium_used', 1) end
+                    G.FUNCS.end_consumeable(nil, delay_fac)
+                end
+                else
+                if G.shop then 
+                    G.shop.alignment.offset.y = G.shop.alignment.offset.py
+                    G.shop.alignment.offset.py = nil
+                end
+                if G.blind_select then
+                    G.blind_select.alignment.offset.y = G.blind_select.alignment.offset.py
+                    G.blind_select.alignment.offset.py = nil
+                end
+                if G.round_eval then
+                    G.round_eval.alignment.offset.y = G.round_eval.alignment.offset.py
+                    G.round_eval.alignment.offset.py = nil
+                end
+                if area and area.cards[1] then 
+                    G.E_MANAGER:add_event(Event({func = function()
+                    G.E_MANAGER:add_event(Event({func = function()
+                        G.CONTROLLER.interrupt.focus = nil
+                        if card.ability.set == 'Voucher' then 
+                        G.CONTROLLER:snap_to({node = G.shop:get_UIE_by_ID('next_round_button')})
+                        elseif area then
+                        G.CONTROLLER:recall_cardarea_focus(area)
+                        end
+                    return true end }))
+                    return true end }))
+                end
+                end
+            return true
+        end}))
+        return true
+    end}))
+
+        return
+    end
+    G_FUNCS_use_card_ref(e, mute, nosave)
+end
+
+local get_current_pool_ref = get_current_pool
+function get_current_pool(_type, _rarity, _legendary, _append)
+    if _legendary or _type ~= 'Joker' or _rarity then return get_current_pool_ref(_type, _rarity, _legendary, _append) end
+    local ancient_pact_percent = 0
+    -- local ancient_pact_legendary_chance = 0
+    if G.jokers then
+        for i = 1, #G.jokers.cards do
+            if G.jokers.cards[i].ability.name == 'Ancient Pact' then
+                ancient_pact_percent = ancient_pact_percent + G.jokers.cards[i].ability.extra.percent
+                -- ancient_pact_legendary_chance = ancient_pact_legendary_chance + G.jokers.cards[i].ability.extra.percent
+            end
+        end
+    end
+    if ancient_pact_percent == 0 then return get_current_pool_ref(_type, _rarity, _legendary, _append) end
+
+    local rarity = pseudorandom('rarity'..G.GAME.round_resets.ante..(_append or ''))
+    -- local legendary = pseudorandom('legendary'..G.GAME.round_resets.ante..(_append or ''))
+    -- if 1 - legendary < ancient_pact_legendary_chance then return get_current_pool_ref(_type, 4, true, _append) end
+    local rarity_shift = (ancient_pact_percent + 100) / 100
+    if rarity_shift >= 3 then rarity_shift = 3 end
+    return get_current_pool_ref(_type, 1 - (1 - rarity) / rarity_shift, nil, _append)
+end
+
+local poll_edition_ref = poll_edition
+function poll_edition(_key, _mod, _no_neg, _guaranteed)
+    _mod = _mod or 1
+    if _guaranteed then return poll_edition_ref(_key, _mod, _no_neg, _guaranteed) end
+    local ancient_pact_percent = 0
+    if G.jokers then
+        for i = 1, #G.jokers.cards do
+            if G.jokers.cards[i].ability.name == 'Ancient Pact' then
+                ancient_pact_percent = ancient_pact_percent + G.jokers.cards[i].ability.extra.percent
+            end
+        end
+    end
+    if ancient_pact_percent == 0 then return poll_edition_ref(_key, _mod, _no_neg, _guaranteed) end
+
+    _mod = _mod * (100 + ancient_pact_percent) / 100
+    if G.GAME.edition_rate * _mod >= 25 then _mod = 25 / G.GAME.edition_rate end
+    local edition_poll = pseudorandom(pseudoseed(_key or 'edition_generic'))
+    if edition_poll > 1 - 0.003*_mod and not _no_neg then
+        return {negative = true}
+    elseif edition_poll > 1 - 0.006*G.GAME.edition_rate*_mod then
+        return {polychrome = true}
+    elseif edition_poll > 1 - 0.02*G.GAME.edition_rate*_mod then
+        return {holo = true}
+    elseif edition_poll > 1 - 0.04*G.GAME.edition_rate*_mod then
+        return {foil = true}
+    end
+    return nil
 end
 
 -- Copied and modifed from LushMod
@@ -1098,9 +1363,7 @@ function Card.generate_UIBox_ability_table(self)
                 self.ability.extra.diff_base
             }
         elseif self.ability.name == 'Hold the Sun' then
-            loc_vars = {
-                localize(self.ability.extra.suit, 'suits_singular')
-            }
+            loc_vars = {localize(self.ability.extra.suit, 'suits_singular')}
         elseif self.ability.name == 'Salvage the World' then
             loc_vars = {
                 self.ability.extra.chips,
@@ -1113,13 +1376,20 @@ function Card.generate_UIBox_ability_table(self)
                 self.ability.extra.per
             }
         elseif self.ability.name == 'Well-Laid Plans' then
-            loc_vars = {
-                localize(self.ability.extra.poker_hand, 'poker_hands')
-            }
+            loc_vars = {localize(self.ability.extra.poker_hand, 'poker_hands')}
         elseif self.ability.name == 'Best-of-Three' then
+            loc_vars = {self.ability.extra.per}
+        elseif self.ability.name == 'Binoculars' then
+            loc_vars = {self.ability.extra.repeat_times}
+        elseif self.ability.name == 'Tax Collector' then
             loc_vars = {
-                self.ability.extra.per
+                self.ability.extra.dollars,
+                self.ability.extra.dollars * 2,
+                self.ability.extra.dollars * 3,
+                self.ability.extra.dollars * 4
             }
+        elseif self.ability.name == 'Ancient Pact' then
+            loc_vars = {self.ability.extra.percent}
         else
             customJoker = false
         end
