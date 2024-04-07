@@ -49,9 +49,25 @@ All **Consumables** and **Vouchers** are banned, together with related Jokers, T
 
 Additionally, the consumable slot is set to 0.
 
-### [Starter Deck](StarterDeck/StarterDeck.lua)
+### [MojiDeck](MojiDeck/MojiDeck.lua)
 
-Start with a free **Mega Buffoon Pack**. Jokers in Buffoon Pack have a **30%** chance to be **Eternal**.
+A collection of custom decks created by MojiMoon.
+
+#### Starter Deck
+
+Start with a free **Mega Buffoon Pack**. Jokers in Buffoon Pack have a **50%** chance to be **Eternal**.
+
+#### Black Painted Deck
+
+**+2** hand size, **-1** hand every round.
+
+#### Merchant Deck
+
+Start run with the **Overstock** and **Clearance Sale** vouchers.
+
+#### Intangible Deck
+
+After defeating each **Boss Blind**, create a random **negative** Joker. **-2** Joker slots.
 
 ## Utilities
 
@@ -59,6 +75,4 @@ Start with a free **Mega Buffoon Pack**. Jokers in Buffoon Pack have a **30%** c
 
 Allow playing cards to have **Negative** edition, giving **+1 hand size when held in hand**.
 
-Also adds a new deck, **Negative Deck**. 
-
-Each starting card has an **1 in 6** chance to be negative, but also **-1** discard every round.
+**Negative Deck**: Each starting card has an **1 in 6** chance to be negative. **-1** discard every round.
