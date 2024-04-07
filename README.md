@@ -18,11 +18,12 @@
 
 ## Jokers
 
-### [MojiJoker](MojiJoker/)
+### [MojiJoker](https://github.com/Mojimoon/MojiJoker)
 
-Please refer to the source code or in-game descriptions for detailed information.
+MojiJoker is now a standalone mod. It adds 30+ new Jokers to the game and is under active development.
 
-Please make sure to put `MojiJoker` folder under `Mods` folder **as a whole**, and do not modify the file structure.
+- Preview: [https://mojimoon.github.io/MojiJoker/](https://mojimoon.github.io/MojiJoker/)
+- Download: [https://github.com/Mojimoon/MojiJoker/releases](https://github.com/Mojimoon/MojiJoker/releases)
 
 ## Decks
 

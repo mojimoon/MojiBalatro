@@ -18,11 +18,12 @@
 
 ## 小丑牌
 
-### [MojiJoker](MojiJoker/)
+### [MojiJoker](https://github.com/Mojimoon/MojiJoker)
 
-可查看源代码或游戏内描述获取详细信息。
+MojiJoker 现已成为一个独立的模组，包含 30+ 张新增小丑牌。
 
-请务必将 **整个** `MojiJoker` 文件夹放在 `Mods` 文件夹下，并且不要修改文件结构。
+- 预览：[https://mojimoon.github.io/MojiJoker/](https://mojimoon.github.io/MojiJoker/)
+- 下载：[https://github.com/Mojimoon/MojiJoker/releases](https://github.com/Mojimoon/MojiJoker/releases)
 
 ## 牌组
 
